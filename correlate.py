@@ -122,26 +122,59 @@ def classify(c, windows, edge):
     return label,tuple(states)
 
 
-def report(cols,windows,edge):
-    lines=['HEHAWK — CORRELATION DIAGNOSTIC','Agreement is not proof of correctness. No transcript is modified.',f'Boundary margin: {edge:.2f}s','']
+def group_phrases(cols, windows, edge, gap=0.85):
+    """FPP: group adjacent disagreements without mixing witnesses."""
+    uncertain = {'ALTERNATIVE', 'POSSIBLE OMISSION', 'BOUNDARY UNCERTAIN'}
+    groups = []
+    for c in cols:
+        state = classify(c, windows, edge)
+        if groups:
+            prev_state, prev_cols = groups[-1]
+            close = bounds(c)[0] - bounds(prev_cols[-1])[1] <= gap
+            # Do not cross a coverage transition into/out of a window.
+            same_coverage = all((a == 'outside') == (b == 'outside')
+                                for a,b in zip(prev_state[1], state[1]))
+            # A sentence-ending observation followed by a pause is a hard break.
+            if bounds(c)[0] - bounds(prev_cols[-1])[1] >= 0.35 and any(phrase(ws).endswith((".", "?", "!")) for ws in prev_cols[-1].values()):
+                close = False
+            if close and (state == prev_state or
+                          (same_coverage and state[0] in uncertain and
+                           prev_state[0] in uncertain)):
+                prev_cols.append(c)
+                groups[-1] = (state, prev_cols)
+                continue
+        groups.append((state, [c]))
+    assert [c for _,cs in groups for c in cs] == cols
+    return [cs for _,cs in groups]
+
+
+def report(cols,windows,edge,gap=0.85):
+    lines=['HEHAWK — CORRELATION DIAGNOSTIC V2 (FPP)',
+           'Agreement is not proof of correctness. No transcript is modified.',
+           f'Boundary margin: {edge:.2f}s; grouping gap: {gap:.2f}s','']
     for k,(lo,hi,p,ws) in enumerate(windows,1):
         lines.append(f'W{k}: {fmt(lo)} - {fmt(hi)} | {len(ws)} words | {p.name}')
     lines.append('')
-    groups=[]
-    for c in cols:
-        state=classify(c,windows,edge)
-        if groups and groups[-1][0]==state and bounds(c)[0]-bounds(groups[-1][1][-1])[1]<=0.85:
-            groups[-1][1].append(c)
-        else: groups.append((state,[c]))
-    for (label,states),cs in groups:
+    for cs in group_phrases(cols,windows,edge,gap):
+        evidence=[classify(c,windows,edge) for c in cs]
+        labels=list(dict.fromkeys(label for label,_ in evidence))
+        label=labels[0] if len(labels)==1 else 'COMPOUND DISAGREEMENT'
         a=min(bounds(c)[0] for c in cs); b=max(bounds(c)[1] for c in cs)
         lines.append(f'{fmt(a)} - {fmt(b)} | {label}')
+        if len(labels)>1: lines.append('  Evidence: '+', '.join(labels))
+        variants=[]
         for k,(lo,hi,_,_) in enumerate(windows):
             ws=[w for c in cs for w in c.get(k,[])]
+            states=list(dict.fromkeys(st[k] for _,st in evidence))
             if ws:
                 x,y=span(ws)
-                lines.append(f'  W{k+1}: {phrase(ws)} [edge {min(x-lo,hi-y):.2f}s; tokens {ws[0][1]}:{ws[-1][2]}]')
-            else: lines.append(f'  W{k+1}: {states[k]}')
+                wording=phrase(ws)
+                variants.append(wording)
+                lines.append(f'  W{k+1}: {wording} [edge {min(x-lo,hi-y):.2f}s; tokens {ws[0][1]}:{ws[-1][2]}]')
+                if states != ['heard']: lines.append('    Coverage: '+', '.join(states))
+            else: lines.append(f'  W{k+1}: '+', '.join(states))
+        if len(variants)>1 and len({norm(v) for v in variants})==1 and len(set(variants))>1:
+            lines.append('  Surface variation: capitalization, punctuation or segmentation')
         lines.append('')
     return '\n'.join(lines)+'\n'
 
@@ -151,7 +184,9 @@ def main():
     p.add_argument('inputs',nargs='+',type=Path)
     p.add_argument('-o','--output',type=Path,required=True)
     p.add_argument('--edge',type=float,default=1.5)
+    p.add_argument('--gap',type=float,default=0.85)
     args=p.parse_args()
+    if not math.isfinite(args.gap) or args.gap<0: p.error('Gap must be finite and nonnegative')
     if len(args.inputs)<2 or len(set(x.resolve() for x in args.inputs))!=len(args.inputs) or not math.isfinite(args.edge) or args.edge<0:
         p.error('Provide distinct input files and a nonnegative finite edge margin')
     windows=sorted((load(x) for x in args.inputs),key=lambda w:(w[0],w[1],str(w[2])))
@@ -160,7 +195,7 @@ def main():
         cols=align(cols,ws,k)
     for k,(_,_,_,ws) in enumerate(windows):
         assert [w for c in cols for w in c.get(k,[])]==ws, 'Alignment lost or reordered words'
-    with args.output.open('x',encoding='utf-8') as f: f.write(report(cols,windows,args.edge))
+    with args.output.open('x',encoding='utf-8') as f: f.write(report(cols,windows,args.edge,args.gap))
     print(f'{len(cols)} alignment columns; report: {args.output}')
 
 
