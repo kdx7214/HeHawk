@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read-only diagnostic alignment of overlapping Parakeet windows."""
 import argparse
+import hashlib
 import json
 import math
 import unicodedata
@@ -179,13 +180,66 @@ def report(cols,windows,edge,gap=0.85):
     return '\n'.join(lines)+'\n'
 
 
+def roost(cols, windows, edge, gap):
+    """ROOST schema 1: preserve aligned lexical evidence and FPP groups."""
+    def observation(ws, lo, hi):
+        if not ws:
+            return None
+        a, b = span(ws)
+        return dict(text=phrase(ws), normalized=norm(phrase(ws)),
+                    start_seconds=a, end_seconds=b,
+                    edge_distance_seconds=min(a-lo, hi-b),
+                    words=[dict(text=w[0], token_start=w[1],
+                                token_end_exclusive=w[2], start_seconds=w[3],
+                                end_seconds=w[4]) for w in ws])
+
+    sources = [dict(id=f'W{k+1}', filename=p.name,
+                    sha256=hashlib.sha256(p.read_bytes()).hexdigest(),
+                    start_seconds=lo, end_seconds=hi, word_count=len(ws))
+               for k,(lo,hi,p,ws) in enumerate(windows)]
+    columns = []
+    for i,c in enumerate(cols):
+        label, states = classify(c, windows, edge)
+        a,b = bounds(c)
+        columns.append(dict(id=i, label=label, start_seconds=a, end_seconds=b,
+                            witnesses=[dict(window_id=f'W{k+1}', state=states[k],
+                                            observation=observation(c.get(k,[]),lo,hi))
+                                       for k,(lo,hi,_,_) in enumerate(windows)]))
+    groups = []
+    offset = 0
+    for i,cs in enumerate(group_phrases(cols,windows,edge,gap)):
+        ids = list(range(offset,offset+len(cs)))
+        offset += len(cs)
+        evidence = [columns[j] for j in ids]
+        labels = list(dict.fromkeys(c['label'] for c in evidence))
+        witnesses = []
+        for k,(lo,hi,_,_) in enumerate(windows):
+            ws = [w for c in cs for w in c.get(k,[])]
+            witnesses.append(dict(window_id=f'W{k+1}',
+                                  states=[c['witnesses'][k]['state'] for c in evidence],
+                                  observation=observation(ws,lo,hi)))
+        groups.append(dict(id=i, column_ids=ids, evidence_labels=labels,
+                           label=labels[0] if len(labels)==1 else 'COMPOUND DISAGREEMENT',
+                           start_seconds=min(c['start_seconds'] for c in evidence),
+                           end_seconds=max(c['end_seconds'] for c in evidence),
+                           witnesses=witnesses))
+    assert offset == len(cols)
+    return dict(schema='hehawk.roost', schema_version=1, timestamp_basis='episode',
+                settings=dict(edge_seconds=edge, grouping_gap_seconds=gap),
+                windows=sources, columns=columns, groups=groups)
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('inputs',nargs='+',type=Path)
     p.add_argument('-o','--output',type=Path,required=True)
     p.add_argument('--edge',type=float,default=1.5)
     p.add_argument('--gap',type=float,default=0.85)
+    p.add_argument('--json',type=Path,help='Optional ROOST evidence output')
     args=p.parse_args()
+    outputs=[args.output]+([args.json] if args.json is not None else [])
+    if len({x.resolve() for x in outputs}) != len(outputs): p.error('Output paths must differ')
+    if any(x.exists() for x in outputs): p.error('Output already exists; choose a new filename')
     if not math.isfinite(args.gap) or args.gap<0: p.error('Gap must be finite and nonnegative')
     if len(args.inputs)<2 or len(set(x.resolve() for x in args.inputs))!=len(args.inputs) or not math.isfinite(args.edge) or args.edge<0:
         p.error('Provide distinct input files and a nonnegative finite edge margin')
@@ -195,7 +249,13 @@ def main():
         cols=align(cols,ws,k)
     for k,(_,_,_,ws) in enumerate(windows):
         assert [w for c in cols for w in c.get(k,[])]==ws, 'Alignment lost or reordered words'
+    payload=roost(cols,windows,args.edge,args.gap) if args.json is not None else None
     with args.output.open('x',encoding='utf-8') as f: f.write(report(cols,windows,args.edge,args.gap))
+    if args.json is not None:
+        with args.json.open('x',encoding='utf-8') as f:
+            json.dump(payload,f,ensure_ascii=False,indent=2,allow_nan=False)
+            f.write('\n')
+        print(f'ROOST evidence: {args.json}')
     print(f'{len(cols)} alignment columns; report: {args.output}')
 
 
