@@ -113,7 +113,7 @@ HOMOPHONES = ({'to', 'too', 'two'}, {'there', 'their', 'theyre'},
 
 
 def reconcile(cols, windows, edge):
-    """Merge adjacent, disjoint homophone columns only at a window edge."""
+    """Reconcile adjacent disjoint alternatives conservatively at window edges."""
     out, audit = [], []
     i = 0
     while i < len(cols):
@@ -134,12 +134,35 @@ def reconcile(cols, windows, edge):
                 def opposed(small,large):
                     return (len(small)==1 and all(near(k,w) for k,w in small.items())
                             and sum(not near(k,w) for k,w in large.items())>=2)
-                if (len(av)==len(bv)==1 and av!=bv and any(av|bv <= h for h in HOMOPHONES)
-                    and delta<=0.65 and gap<=0.45 and (opposed(a,b) or opposed(b,a))):
+                reason = None
+                if len(av)==len(bv)==1 and av!=bv:
+                    if any(av|bv <= h for h in HOMOPHONES):
+                        reason = 'Adjacent disjoint homophones with edge-only minority'
+                    else:
+                        for small, large, sv, lv in ((a,b,av,bv),(b,a,bv,av)):
+                            if not opposed(small,large):
+                                continue
+                            s,l = next(iter(sv)),next(iter(lv))
+                            k,ws = next(iter(small.items()))
+                            lo,hi,_,all_words = windows[k]
+                            u,v = span(ws)
+                            # Require the minority to be the final word of its window,
+                            # and at least two interior majority words to cross its end.
+                            if ws[-1] != all_words[-1] or hi-v >= edge:
+                                continue
+                            if sum(not near(j,w) and span(w)[0] < hi < span(w)[1]
+                                   for j,w in large.items()) < 2:
+                                continue
+                            if len(s)>=3 and l.startswith(s) and len(l)>len(s):
+                                reason = 'Boundary-associated lexical prefix'
+                            elif len(l)>=3 and s == l+'s':
+                                reason = 'Boundary-associated final s variation'
+                if (reason and delta<=0.65 and gap<=0.45
+                    and (opposed(a,b) or opposed(b,a))):
                     out.append({**a,**b})
                     audit.append(dict(original_column_ids=[i,i+1], variants=sorted(av|bv),
                                       midpoint_delta_seconds=delta, interval_gap_seconds=gap,
-                                      reason='Adjacent disjoint homophones with edge-only minority'))
+                                      reason=reason))
                     i+=2
                     continue
         out.append(a)
@@ -276,7 +299,7 @@ def main():
     p.add_argument('-o','--output',type=Path,required=True)
     p.add_argument('--edge',type=float,default=1.5)
     p.add_argument('--gap',type=float,default=0.85)
-    p.add_argument('--no-reconcile',action='store_true',help='Disable TALON V3 second pass')
+    p.add_argument('--no-reconcile',action='store_true',help='Disable TALON V4 second pass')
     p.add_argument('--json',type=Path,help='Optional ROOST evidence output')
     args=p.parse_args()
     outputs=[args.output]+([args.json] if args.json is not None else [])
@@ -296,10 +319,10 @@ def main():
         assert [w for c in cols for w in c.get(k,[])]==ws, 'Alignment lost or reordered words'
     payload=roost(cols,windows,args.edge,args.gap) if args.json is not None else None
     if payload is not None:
-        payload['talon_reconciliation'] = dict(version=3, enabled=not args.no_reconcile, merges=audit)
+        payload['talon_reconciliation'] = dict(version=4, enabled=not args.no_reconcile, merges=audit)
     with args.output.open('x',encoding='utf-8') as f:
         f.write(report(cols,windows,args.edge,args.gap))
-        f.write('TALON V3 reconciliation: '+str(len(audit))+' merges\n')
+        f.write('TALON V4 reconciliation: '+str(len(audit))+' merges\n')
         for item in audit: f.write(json.dumps(item)+'\n')
     if args.json is not None:
         with args.json.open('x',encoding='utf-8') as f:
