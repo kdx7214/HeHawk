@@ -106,6 +106,47 @@ def align(cols, words, k):
     return out[::-1]
 
 
+# Conservative, explicit English homophone classes; not a spelling corrector.
+HOMOPHONES = ({'to', 'too', 'two'}, {'there', 'their', 'theyre'},
+              {'your', 'youre'}, {'hear', 'here'}, {'right', 'write'},
+              {'no', 'know'}, {'one', 'won'}, {'see', 'sea'})
+
+
+def reconcile(cols, windows, edge):
+    """Merge adjacent, disjoint homophone columns only at a window edge."""
+    out, audit = [], []
+    i = 0
+    while i < len(cols):
+        a = cols[i]
+        if i+1 < len(cols):
+            b = cols[i+1]
+            if not (set(a) & set(b)) and all(len(ws)==1 for ws in list(a.values())+list(b.values())):
+                av = {norm(ws[0][0]) for ws in a.values()}
+                bv = {norm(ws[0][0]) for ws in b.values()}
+                x,y = bounds(a),bounds(b)
+                delta = abs(sum(x)/2-sum(y)/2)
+                gap = max(x[0],y[0])-min(x[1],y[1])
+                def near(k,ws):
+                    lo,hi,_,_ = windows[k]
+                    u,v = span(ws)
+                    return min(u-lo,hi-v)<edge
+                # Require an edge-only minority and corroborated interior majority.
+                def opposed(small,large):
+                    return (len(small)==1 and all(near(k,w) for k,w in small.items())
+                            and sum(not near(k,w) for k,w in large.items())>=2)
+                if (len(av)==len(bv)==1 and av!=bv and any(av|bv <= h for h in HOMOPHONES)
+                    and delta<=0.65 and gap<=0.45 and (opposed(a,b) or opposed(b,a))):
+                    out.append({**a,**b})
+                    audit.append(dict(original_column_ids=[i,i+1], variants=sorted(av|bv),
+                                      midpoint_delta_seconds=delta, interval_gap_seconds=gap,
+                                      reason='Adjacent disjoint homophones with edge-only minority'))
+                    i+=2
+                    continue
+        out.append(a)
+        i+=1
+    return out,audit
+
+
 def classify(c, windows, edge):
     a,b=bounds(c)
     states=[]
@@ -235,6 +276,7 @@ def main():
     p.add_argument('-o','--output',type=Path,required=True)
     p.add_argument('--edge',type=float,default=1.5)
     p.add_argument('--gap',type=float,default=0.85)
+    p.add_argument('--no-reconcile',action='store_true',help='Disable TALON V3 second pass')
     p.add_argument('--json',type=Path,help='Optional ROOST evidence output')
     args=p.parse_args()
     outputs=[args.output]+([args.json] if args.json is not None else [])
@@ -247,10 +289,18 @@ def main():
     cols=[]
     for k,(_,_,_,ws) in enumerate(windows):
         cols=align(cols,ws,k)
+    audit=[]
+    if not args.no_reconcile:
+        cols,audit=reconcile(cols,windows,args.edge)
     for k,(_,_,_,ws) in enumerate(windows):
         assert [w for c in cols for w in c.get(k,[])]==ws, 'Alignment lost or reordered words'
     payload=roost(cols,windows,args.edge,args.gap) if args.json is not None else None
-    with args.output.open('x',encoding='utf-8') as f: f.write(report(cols,windows,args.edge,args.gap))
+    if payload is not None:
+        payload['talon_reconciliation'] = dict(version=3, enabled=not args.no_reconcile, merges=audit)
+    with args.output.open('x',encoding='utf-8') as f:
+        f.write(report(cols,windows,args.edge,args.gap))
+        f.write('TALON V3 reconciliation: '+str(len(audit))+' merges\n')
+        for item in audit: f.write(json.dumps(item)+'\n')
     if args.json is not None:
         with args.json.open('x',encoding='utf-8') as f:
             json.dump(payload,f,ensure_ascii=False,indent=2,allow_nan=False)
