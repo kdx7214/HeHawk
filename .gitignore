@@ -1,0 +1,15 @@
+# Ignore everything by default
+*
+
+# Allow root-level source code and documentation
+!/*.py
+!/*.md
+!/.gitignore
+!/requirements.txt
+!/pyproject.toml
+
+# Allow utility source code
+!/utilities/
+/utilities/*
+!/utilities/*.py
+!/utilities/*.md
