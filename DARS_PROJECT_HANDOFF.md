@@ -99,3 +99,66 @@ without explicit human authorization.
 
 All processing must remain local. Loopback API access
 alone does not establish complete network isolation.
+
+## 2026-11-24 — GULP stabilized; SWAN proposed
+
+### GULP
+- V4 promoted to gulp.py.
+- Independent auditor V2 promoted to gulp_audit.py.
+- Content-based format identification.
+- SRT and ASS/SSA conversion implemented.
+- PGS, VobSub index and MicroDVD recognized but unsupported.
+- Preserve dialogue, timing, line breaks, bold, italics
+  and hard spaces.
+- Angel regression: 415 cues passed the revised audit.
+- Initial 44 discrepancies resulted from FFmpeg retaining
+  literal ASS hard-space escapes.
+- Do not normalize presentation during faithful ingestion.
+
+### SWAN — Subtitle Whitespace And Normalization
+Status: Designed, not implemented.
+
+Standalone presentation normalization utility.
+Original evidence must remain unchanged.
+
+Experiment 1: Read-only presentation diagnostics.
+- Detect all overlapping pairs using a sweep-line algorithm.
+- Include nonadjacent and nested overlaps.
+- Identify connected conflict groups.
+- Measure maximum simultaneous captions.
+- Measure longest overlap and total overlapping time.
+- Detect insufficient gaps, indentation, line lengths,
+  reading speed and out-of-order timestamps.
+
+Initial configurable diagnostic defaults:
+- Minimum gap: 24 ms.
+- Preferred minimum duration: 600 ms.
+- Maximum lines: 2.
+- Maximum characters per line: 42.
+- Reading speed warning: 20 characters per second.
+- Indentation threshold: 2 leading spaces.
+
+Experiment 2: Conservative normalization.
+- Convert justified speaker indentation into dialogue markers.
+- Resolve timing conflicts locally without cumulative drift.
+- Preserve speech synchronization and reading time.
+- Escalate irreconcilable conflicts to human review.
+- Support dry-run and standalone batch processing.
+
+### SCOOP — Subtitle Cleanup Of Obsolete Products
+Status: Concept only.
+
+Reference-aware garbage collection for temporary artifacts.
+Preserve original evidence and referenced intermediates.
+Require dry-run reporting and explicit deletion authorization.
+
+### Next development steps
+1. Implement and test SWAN read-only diagnostics.
+2. Test nested and nonadjacent overlap detection.
+3. Evaluate real subtitle files before normalization.
+4. Implement conservative SWAN normalization.
+5. Implement FFprobe-based embedded subtitle discovery.
+6. Develop episode scheduling and ZOOKEEPER integration.
+
+All media, transcripts, voice embeddings and dialogue-bearing
+diagnostics must remain local.

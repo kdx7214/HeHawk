@@ -290,3 +290,26 @@ to postpone integration.
 HUZRI administrative note:
 Mistral has been denied tenure but retains visiting
 researcher status. Ambassador Gill remains protected.
+
+## 2026-11-24 — Emergent specialization
+
+Independent conversion auditing exposed a difference
+between representation and semantic content.
+
+The distinction between faithful ingestion and readable
+presentation motivated a separate component, SWAN.
+
+User experience with nonadjacent overlapping captions
+motivated sweep-line detection and connected conflict groups.
+
+The avian metaphor also prompted SCOOP, a proposed
+reference-aware artifact garbage collector.
+
+These are observations of architectural emergence,
+not evidence that metaphor necessarily improves design.
+
+HUZRI administrative notes:
+- SWAN joins the Department of Avian Typography.
+- SCOOP joins the Department of Avian Waste Management.
+- Never mistake a research specimen for a turd.
+- Elegance without loss of meaning.
