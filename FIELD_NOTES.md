@@ -250,3 +250,43 @@ What remains unverified? How might we test it?
 ---
 
 *The spontaneous absurdity is part of the data.*
+
+## 2026-11-24 — CAGE and the limits of contextual inference
+
+Three experimental implementations examined the same
+corrected two-minute subtitle sample.
+
+| Version | Representation | Advisories | Seconds |
+|---|---|---:|---:|
+| V1 | Reconciliation segments | 15 | 22.46 |
+| V2 | Continuous passage plus segment index | 13 | 20.29 |
+| V3 | Formatted subtitle cues | 5 | 11.15 |
+
+No confirmed new transcription errors were discovered.
+
+Observations:
+- Information representation influences model behavior.
+- Evidence boundaries are not linguistic boundaries.
+- Unfamiliarity is not evidence of incorrectness.
+- Linguistic plausibility is not acoustic evidence.
+- Specialized components may outperform general-purpose
+  models on narrowly defined tasks.
+- Reduced advisory count does not establish accuracy.
+
+The human collaborator redirected development away from
+optimizing model behavior and toward measuring practical
+editorial usefulness.
+
+Architectural decision:
+Distinguish production components from investigative
+instruments. CAGE remains an optional research utility.
+
+Treat imagination as a source of hypotheses, never as
+a source of evidence.
+
+The absence of demonstrated utility is sufficient reason
+to postpone integration.
+
+HUZRI administrative note:
+Mistral has been denied tenure but retains visiting
+researcher status. Ambassador Gill remains protected.

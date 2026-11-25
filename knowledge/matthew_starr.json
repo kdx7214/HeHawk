@@ -36,6 +36,16 @@
           "type": "homophone"
         }
       ]
+    },
+    {
+      "id": "d0a6102b6ff64d2790013315fca0be66",
+      "canonical": "Cindy During",
+      "kind": "character",
+      "variants": [],
+      "relationships": [],
+      "state": "verified",
+      "source": "Series wiki and S01E01 audio confirmation",
+      "notes": ""
     }
   ]
 }

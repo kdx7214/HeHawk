@@ -72,3 +72,30 @@ Organize around entities, with distinct canonical names/aliases, phonetic forms,
 
 ## Resume prompt
 “Here is the DARS project handoff. We stopped after the successful three-window controlled Parakeet experiment. Let's continue with the standalone timestamp-aware correlation diagnostic, keeping production scripts untouched. Please ask for any actual input files you need and provide complete scripts.”
+
+## CAGE — Optional contextual inspection
+
+Status: Experimental; excluded from default production workflow.
+
+CAGE reads SRT subtitles and uses a local Ollama model
+to generate timestamped, non-destructive advisories.
+
+Current implementation: cage.py (formerly cage_v3.py).
+Earlier implementations are archived locally in archive/cage/.
+
+Experimental results:
+- V1: 15 advisories, 22.46 seconds.
+- V2: 13 advisories, 20.29 seconds.
+- V3: 5 advisories, 11.15 seconds.
+- No confirmed new transcription errors discovered.
+
+Future ZOOKEEPER integration:
+- Optional full subtitle inspection.
+- Selected passage investigation (not yet implemented).
+- Experimental model and prompt comparison.
+
+CAGE must never modify subtitles or verified OWL knowledge
+without explicit human authorization.
+
+All processing must remain local. Loopback API access
+alone does not establish complete network isolation.
