@@ -58,6 +58,11 @@ def scan(k, h):
         matches = {}
         for key, options in rules.items():
             for m in re.finditer(r'(?<!\w)'+re.escape(key)+r'(?!\w)', normalized):
+                # Internal apostrophes join lexical words; quotation marks do not.
+                if re.search(r"\w['’]$", normalized[:m.start()]):
+                    continue
+                if re.match(r"['’]\w", normalized[m.end():]):
+                    continue
                 a,b = mapping[m.start()][0],mapping[m.end()-1][1]
                 matches.setdefault((a,b), []).extend(options)
         for (a,b), options in sorted(matches.items()):

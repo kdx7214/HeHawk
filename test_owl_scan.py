@@ -51,6 +51,16 @@ class OwlScanExam(unittest.TestCase):
     def test_whole_word(self):
         self.assertEqual(self.run_scan(segment('Donny')),[])
 
+    def test_contractions(self):
+        self.assertEqual(self.run_scan(segment("don't DON’T Don't")), [])
+
+    def test_quoted_names(self):
+        rows = self.run_scan(segment("'Don' ‘Dawn’"))
+        self.assertEqual([r['recognized'] for r in rows], ['Don', 'Dawn'])
+
+    def test_internal_apostrophe(self):
+        self.assertEqual(self.run_scan(segment("O'Don O’Don")), [])
+
     def test_canonical_spelling(self):
         self.assertEqual(self.run_scan(segment('Shepherd')),[])
 
