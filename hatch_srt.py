@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export reviewed HATCH transcripts without inventing word timings."""
+"""Export reviewed HATCH and OWL transcripts without inventing word timings."""
 import argparse
 import json
 from pathlib import Path
@@ -7,7 +7,7 @@ from srt_format import build_groups, render_srt
 
 
 def convert(data, preview=False):
-    if (data['schema'], data['schema_version'], data['timestamp_basis']) != ('hehawk.hatch', 1, 'episode'):
+    if data['schema'] not in ('hehawk.hatch', 'hehawk.owl.edited') or (data['schema_version'], data['timestamp_basis']) != (1, 'episode'):
         raise ValueError('Unsupported HATCH contract')
     pending = set(data['pending_groups'])
     pending.update(s['group_id'] for s in data['segments'] if s['text'] is None or s['issues'])
@@ -23,9 +23,24 @@ def convert(data, preview=False):
             continue
         elif s['timing_basis'] == 'observed' and s['selected']:
             obs = s['selected']['observation']
-            if obs['text'] != s['text'] or not obs['words']:
+            source = obs['words']
+            editorial = s.get('editorial_words')
+            if not source:
+                raise ValueError(f'Empty observation G{gid:03}')
+            if editorial is not None:
+                if data['schema'] != 'hehawk.owl.edited' or not s.get('owl_edits') or s.get('owl_original_text') != obs['text']:
+                    raise ValueError(f'Invalid editorial provenance G{gid:03}')
+                if len(source) != len(editorial) or any(
+                    {k:v for k,v in a.items() if k != 'text'} !=
+                    {k:v for k,v in b.items() if k != 'text'}
+                    for a,b in zip(source, editorial)):
+                    raise ValueError(f'Editorial timing or token mismatch G{gid:03}')
+                if ' '.join(w['text'] for w in editorial) != s['text']:
+                    raise ValueError(f'Editorial text mismatch G{gid:03}')
+                source = editorial
+            elif obs['text'] != s['text']:
                 raise ValueError(f'Inconsistent observation G{gid:03}')
-            words.extend(dict(text=w['text'], start=w['start_seconds'], end=w['end_seconds']) for w in obs['words'])
+            words.extend(dict(text=w['text'], start=w['start_seconds'], end=w['end_seconds']) for w in source)
         elif s['timing_basis'] == 'estimated_group_interval' and not s['selected']:
             words.append(dict(text=s['text'], start=s['start_seconds'], end=s['end_seconds'], isolated=True))
             estimated += 1
