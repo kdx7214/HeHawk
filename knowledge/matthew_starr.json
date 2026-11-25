@@ -1,6 +1,6 @@
 {
   "schema": "hehawk.owl",
-  "schema_version": 1,
+  "schema_version": 2,
   "series": "The Powers of Matthew Starr",
   "entries": [
     {
@@ -12,7 +12,13 @@
       ],
       "state": "verified",
       "source": "S01E01: human verification of chalkboard spelling",
-      "notes": ""
+      "notes": "",
+      "relationships": [
+        {
+          "text": "Shepard",
+          "type": "spelling"
+        }
+      ]
     },
     {
       "id": "a06905cfeeb646f19f693632884914de",
@@ -23,7 +29,13 @@
       ],
       "state": "verified",
       "source": "S01E01: human review of character introduction",
-      "notes": ""
+      "notes": "",
+      "relationships": [
+        {
+          "text": "Don",
+          "type": "homophone"
+        }
+      ]
     }
   ]
 }
