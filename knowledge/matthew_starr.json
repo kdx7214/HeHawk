@@ -1,0 +1,29 @@
+{
+  "schema": "hehawk.owl",
+  "schema_version": 1,
+  "series": "The Powers of Matthew Starr",
+  "entries": [
+    {
+      "id": "cc7d1b7365dc4ddcb20d0aab8ba4c0b2",
+      "canonical": "Shepherd",
+      "kind": "character",
+      "variants": [
+        "Shepard"
+      ],
+      "state": "verified",
+      "source": "S01E01: human verification of chalkboard spelling",
+      "notes": ""
+    },
+    {
+      "id": "a06905cfeeb646f19f693632884914de",
+      "canonical": "Dawn",
+      "kind": "character",
+      "variants": [
+        "Don"
+      ],
+      "state": "verified",
+      "source": "S01E01: human review of character introduction",
+      "notes": ""
+    }
+  ]
+}

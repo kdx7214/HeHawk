@@ -13,3 +13,9 @@
 /utilities/*
 !/utilities/*.py
 !/utilities/*.md
+
+!/knowledge/
+/knowledge/*
+!/knowledge/*.json
+!/knowledge/*.md
+
