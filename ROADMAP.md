@@ -133,3 +133,244 @@ Explore alternate recognition passes, sliding windows, noise reduction, dialogue
 ## 9. Success criteria
 
 The objective is not perfect automatic transcription or speaker identification. The objective is readable, trustworthy subtitles and sufficient evidence for a human to resolve uncertain cases efficiently, without repeatedly performing work that the software can do reliably.
+
+---
+
+## 10. Development checkpoint — 2026-11-26
+
+This section updates the implementation status and near-term
+priorities described above.
+
+See DARS_PROJECT_HANDOFF.md for detailed experimental results,
+regression artifact filenames and exact resume instructions.
+
+### Completed experimental milestones
+
+- GULP faithful ingestion and independent auditing.
+- SWAN presentation diagnostics and conservative timing adjustment.
+- CHIRP full-episode diarization baseline.
+- BOWERBIRD local acoustic and speaker investigations.
+- LARK independent speech probability estimation.
+- HUNT recognition omission inventory and differential comparison.
+- TERN natural-pause segmentation and segmented recognition.
+- Controlled recognition padding experiments.
+- MAGPIE incremental caption corroboration.
+- MAGPIE novelty and historical evidence classification.
+- MAGPIE multi-pass recognition accumulation.
+- MAGPIE localized disagreement detection.
+- Decoder-aware lexical reconstruction.
+- Exact token character ownership verification.
+- Independent timing ownership and conservation audits.
+- Decoder-aware localization differential audit.
+- Fifty-one passing synthetic reconstruction regression tests.
+
+Experimental completion does not imply production integration.
+
+### 10.1 TERN — Recognition geometry and controlled alternatives
+
+Retain natural-pause segmentation as an experimental recognition
+strategy rather than assuming it universally improves accuracy.
+
+- Preserve contiguous source sample geometry.
+- Preserve segment-relative and episode-relative timing separately.
+- Record padding parameters, seeds and actual input geometry.
+- Compare alternate recognition passes without destructive merging.
+- Preserve empty observations.
+- Retain minority-only recognition hypotheses.
+- Investigate boundary omissions and interior omissions separately.
+- Do not assume silence padding and noise padding are equivalent.
+- Do not infer unverified internal model mechanisms.
+- Evaluate preprocessing techniques independently.
+
+### 10.2 LARK and HUNT — Independent omission investigation
+
+Speech detection and recognition coverage are separate evidence layers.
+
+- Investigate speech-like intervals lacking recognition coverage.
+- Investigate omissions shared by multiple recognition passes.
+- Retain short gaps and possible interjections.
+- Avoid blanket minimum-duration rejection rules.
+- Distinguish acoustic uncertainty from lexical uncertainty.
+- Preserve negative and inconclusive experimental results.
+- Allow unresolved evidence to remain unresolved.
+
+HUNT must not depend exclusively on MAGPIE disagreements.
+Unanimous recognition can still omit genuine dialogue.
+
+### 10.3 MAGPIE — Evidence-driven reconciliation
+
+The current experimental system localizes lexical disagreements
+across multiple recognition passes.
+
+The next development sequence is:
+
+#### 7G — Historical and caption evidence overlay
+
+- Associate original captions with localized alternatives.
+- Associate recovered caption candidates.
+- Associate historical recognition observations.
+- Preserve complete and partial supporting evidence.
+- Distinguish historical observation from human verification.
+- Identify genuinely novel hypotheses.
+- Retain every alternative, including empty alternatives.
+- Initially annotate evidence without eliminating review windows.
+
+#### 7H — Independent omission evidence
+
+- Overlay HUNT and LARK evidence.
+- Identify possible shared recognition omissions.
+- Include original-caption disagreements not represented in
+  multi-pass lexical disagreements.
+- Preserve punctuation and speaker-boundary uncertainty.
+- Keep independent evidence categories visible.
+
+#### 7I — Persistent human review queue
+
+- Use stable evidence-based identities.
+- Retain accept, reject, edit, defer and unresolved decisions.
+- Retain exact evidence and proposal versions.
+- Distinguish previously reviewed evidence from new hypotheses.
+- Reopen decisions only when meaningful new evidence warrants it.
+- Preserve conflicting evidence and decision history.
+- Support contextual playback without requiring repeated
+  full-episode listening.
+
+#### 7J — Human review evaluation
+
+Measure:
+
+- Actual listening time.
+- Number of playback repetitions.
+- Decision time.
+- Total human review effort.
+- Dialogue completeness.
+- Correction accuracy.
+- Synchronization quality.
+- Reading comfort.
+- Previously resolved cases unnecessarily reopened.
+
+Potential interval-coverage savings are useful diagnostics,
+but are not substitutes for measured human review effort.
+
+### 10.4 Decoder-aware reconstruction integration
+
+Before promoting experimental reconstruction:
+
+- Separate reusable verification helpers from test modules.
+- Record reconstruction method in artifact metadata.
+- Preserve original decoded text and raw token streams.
+- Preserve exact character and token ownership.
+- Preserve shared token timing without inventing subtoken timing.
+- Validate punctuation-boundary classifications.
+- Escalate ambiguous lexical boundary changes.
+- Verify segment concatenation boundaries.
+- Retain the original implementation until regression testing
+  supports a deliberate migration.
+- Validate on additional episodes and recording conditions.
+
+### 10.5 ROOK — Orthographic evidence
+
+Proposed component:
+Recognition of Orthographic Oddities and Knowledge.
+
+Responsibilities:
+
+- Preserve meaningful apostrophes and hyphens.
+- Distinguish contractions, possessives and ordinary words.
+- Handle fictional names and series-specific vocabulary.
+- Preserve numeric punctuation and meaningful lexical distinctions.
+- Distinguish orthographic variants from competing hypotheses.
+- Preserve raw line boundaries and speaker-marker evidence.
+- Support contextual spelling proposals without forced replacement.
+
+Character equivalence, lexical equivalence and semantic equivalence
+are distinct concepts.
+
+A normalization strategy must not silently collapse meaningful
+alternatives merely to improve apparent recognition agreement.
+
+### 10.6 ZOOKEEPER — Evidence dependency management
+
+Extend the planned artifact dependency graph to distinguish:
+
+- Immutable source evidence.
+- Raw recognition observations.
+- Acoustic observations.
+- Reconstructed lexical and timing evidence.
+- Derived interpretations.
+- Proposed corrections.
+- Human review decisions.
+- Final presentation artifacts.
+
+A change in reconstruction should invalidate affected derived
+localization products without requiring unnecessary recognition reruns.
+
+A change in presentation settings should not invalidate underlying
+recognition or human dialogue decisions.
+
+Preserve reusable evidence across interrupted sessions.
+
+### 10.7 SCOOP — Cleanup safety
+
+Never infer that an artifact is obsolete solely because a newer
+artifact exists.
+
+- Historical recognition can remain useful evidence.
+- Negative experiments can prevent repeated failed investigations.
+- Earlier hypotheses can corroborate later observations.
+- Human decisions may reference older artifact versions.
+- Require dependency-aware cleanup and explicit authorization.
+- Preserve regression and curated evidence.
+
+### 10.8 NUTCRACKER — Reviewed evidence and regression corpus
+
+Retain examples of:
+
+- Confirmed dialogue omissions.
+- Confirmed recognition substitutions.
+- Correct minority-only recognition.
+- Incorrect unanimous recognition.
+- Speaker-boundary ambiguity.
+- Punctuation-boundary ambiguity.
+- Timing ownership defects.
+- Recognition sensitivity to context and padding.
+- Successful and unsuccessful preprocessing.
+- Human-confirmed unresolved or unintelligible passages.
+
+Keep episode-specific evidence local.
+
+Do not treat uncertain or automatically corroborated observations
+as human-verified training examples.
+
+### 10.9 Experimental benchmark
+
+The current Angel regression produced:
+
+- 170 recognition segments.
+- Four recognition passes.
+- 680 observations.
+- 80 disputed segments.
+- 117 localized disagreement regions.
+- 87 contextual review windows.
+- Zero remaining localization fallbacks.
+- Zero detected lexical conservation failures.
+
+Potential listening duration decreased from 1209.056 seconds
+of complete disputed segments to 291.360 seconds of contextual
+review windows, a reduction of 75.90 percent.
+
+This is not a transcription accuracy measurement.
+It does not include all possible omission or caption discrepancies.
+Actual human review savings remain to be measured.
+
+### 10.10 Operational priorities
+
+- Process one episode at a time.
+- Prefer reliable CPU implementations before optional GPU tuning.
+- Prioritize accuracy, reproducibility and maintainability.
+- Use explicit interpreter paths and artifact filenames.
+- Use human-readable timestamps in diagnostic output.
+- Preserve original media and manual corrections.
+- Keep experimental code separate from production behavior.
+- Keep all dialogue-bearing evidence local.
+- Maintain documentation at successful experimental checkpoints.

@@ -1,5 +1,11 @@
 # DARS — Distributed Avian Recognition System
 
+**Current checkpoint: 2026-11-26 — Experiment 7F.8 complete.**
+
+See the CURRENT DEVELOPMENT CHECKPOINT section below for authoritative
+implementation status and the next experiment. Earlier resume prompts
+are retained for historical reference.
+
 Project checkpoint: November 23, 2026, end of development session.
 
 ## Purpose
@@ -162,3 +168,636 @@ Require dry-run reporting and explicit deletion authorization.
 
 All media, transcripts, voice embeddings and dialogue-bearing
 diagnostics must remain local.
+
+---
+
+# CURRENT DEVELOPMENT CHECKPOINT — 2026-11-26
+
+This checkpoint supersedes all earlier resume prompts, implementation
+status descriptions and immediate next-step instructions in this file.
+Earlier sections are retained as historical development records.
+
+## Project identity and working conventions
+
+- Repository: kdx7214/HeHawk.
+- Project name: HeHawk.
+- Architecture nickname: DARS (Distributed Avian Recognition System).
+- Project directory: ~/drive_d/t.
+- Operating system: Linux Mint Cinnamon.
+- CPU: AMD Ryzen 7 9800X3D, eight physical cores, sixteen threads.
+- GPU: AMD Radeon RX 9070 XT, 16 GB VRAM.
+- CPU-first development; GPU acceleration is optional future work.
+- Core Python environment: .venv.
+- Acoustic and speaker-analysis environment: .venv-chirp.
+- Always specify the Python interpreter explicitly in commands.
+- Always specify exact input and output filenames and relative paths.
+- Human-facing timestamps use HH:MM:SS.mmm.
+- Include decimal seconds alongside timestamps when useful for commands.
+- Provide complete replacement scripts rather than partial Python edits.
+- Process one episode at a time.
+- Accuracy and maintainability take precedence over execution speed.
+- Preserve original media, recognition evidence and human decisions.
+- Never silently overwrite or delete existing artifacts.
+- Keep media, transcripts, voice embeddings and dialogue-bearing
+  diagnostics local. Do not commit them to GitHub.
+
+## Architecture and component inventory
+
+| Component | Responsibility | Current status |
+|---|---|---|
+| GULP | Faithful subtitle ingestion | Implemented and audited |
+| SWAN | Subtitle presentation and timing normalization | Implemented and tested |
+| PARAKEET | Primary speech recognition | Operational |
+| OWL | Series vocabulary and knowledge | Initial implementation |
+| CAGE | Optional local contextual inspection | Experimental |
+| CHIRP | Speaker diarization | Experimental |
+| BOWERBIRD | Local acoustic and speaker evidence | Experimental |
+| LARK | Independent speech probability estimation | Implemented experimentally |
+| HUNT | Detection and investigation of recognition omissions | Experimental |
+| TERN | Temporal extraction and recognition navigation | Experimental |
+| MAGPIE | Multiple Audio-source Gathering, Provenance, Integration and Evaluation | Experimental through 7F |
+| ROOK | Recognition of Orthographic Oddities and Knowledge | Proposed |
+| NUTCRACKER | Persistent local reviewed evidence corpus | Planned |
+| ZOOKEEPER | Dependency-aware orchestration | Planned |
+| SCOOP | Reference-aware artifact cleanup | Planned |
+| STORK | Final subtitle publishing and preview muxing | Planned |
+| WOODPECKER | Installation and environment diagnostics | Proposed |
+
+ALBATROSS is an unofficial mascot representing technical debt,
+legacy dependencies and accidentally indispensable obsolete behavior.
+
+## SWAN — Completed initial implementation
+
+SWAN is no longer merely a design proposal.
+
+Implemented standalone diagnostics and conservative timing normalization,
+with independent auditing.
+
+Initial presentation defaults:
+
+- Preferred minimum inter-cue gap: 24 ms.
+- Preferred minimum cue duration: 600 ms.
+- Reading speed warning: 20 characters per second.
+- Maximum preferred lines: two.
+- Maximum preferred characters per line: 42.
+
+Initial normalization preserves cue starts and dialogue content.
+It adjusts cue ends locally without accumulating timing drift.
+
+Angel regression:
+
+- Original cues: 415.
+- Original overlapping pairs: 24.
+- Remaining overlaps after initial normalization: zero.
+- Insufficient gaps: 254 reduced to 31.
+- Short cues: 27 reduced to zero.
+- Reading speed warnings: 70 reduced to 38.
+- Modified cues: 288.
+- Independent integrity audit passed.
+- Human playback assessment found synchronization satisfactory.
+
+A later reconciliation preview contained 518 cues and one protected
+120 ms overlap requiring investigation.
+
+Do not force resolution of complex overlaps at the expense of dialogue
+or synchronization. Presentation normalization follows reconciliation.
+
+Whitespace normalization and speaker-marker interpretation remain
+future work. Preserve meaningful indentation and raw line boundaries.
+
+## CHIRP and BOWERBIRD
+
+Full-episode diarization and local overlapping-window acoustic
+investigations have been performed.
+
+Findings:
+
+- Global diarization can produce excessive speaker transitions.
+- Short windows can yield unstable speaker embeddings.
+- Longer windows can improve speaker evidence but can also combine
+  multiple speakers.
+- Speaker count and speaking-turn count are different quantities.
+- A-B-A patterns and short interjections must remain representable.
+- Acoustic transitions do not necessarily indicate speaker changes.
+- Unknown speakers must remain unknown rather than being forced into
+  enrolled identities.
+
+Future character voice enrollment should use multiple diverse,
+human-verified samples. Keep embeddings and source audio local.
+
+## LARK and HUNT
+
+LARK uses Silero VAD through ONNX to produce independent speech
+probabilities at 512-sample intervals for 16 kHz audio.
+
+LARK evidence is probabilistic, not a definitive dialogue transcript.
+
+HUNT compares speech probabilities with recognition word coverage.
+
+Important distinctions:
+
+- Speech probability is not proof of intelligible dialogue.
+- Recognition coverage is not proof of correct transcription.
+- Missing dialogue can occur inside continuous recognized speech.
+- Agreement among recognizers cannot reveal every shared omission.
+- Very short gaps can contain meaningful dialogue.
+- Do not apply a blanket minimum-duration filter that discards evidence.
+
+HUNT should retain evidence independently of MAGPIE lexical agreement.
+
+## Experiment 6 — TERN segmented recognition
+
+### Segmentation
+
+TERN divides an episode into contiguous recognition segments using
+natural pauses where possible.
+
+Initial settings:
+
+- Target segment duration: 15 seconds.
+- Preferred minimum: eight seconds.
+- Preferred maximum: 20 seconds.
+- Pause probability threshold: 0.3.
+- Minimum pause duration: 256 ms.
+
+Initial full-episode regression:
+
+- Segments: 170.
+- Natural internal boundaries: 164.
+- Fallback internal boundaries: five.
+- Mean segment duration: approximately 14.748 seconds.
+- Shortest segment: approximately 4.763 seconds.
+- Longest segment: approximately 19.760 seconds.
+
+### Recognition
+
+Each segment is recognized using a fresh recognition stream.
+The model is loaded once.
+
+- CPU provider.
+- Eight recognition threads.
+- Existing Parakeet TDT 0.6B v2 INT8 model.
+- Preserve original segment-relative token timestamps.
+- Preserve absolute episode geometry separately.
+- Record source and model hashes.
+- Retain timing warnings rather than silently clipping raw evidence.
+
+Initial segmented recognition completed in 36.740 seconds.
+It recovered some previously omitted dialogue but introduced other
+omissions. Segmentation alone is not a universal improvement.
+
+### Padding sensitivity
+
+Controlled experiments demonstrated that recognition can change when
+short amounts of audio or synthetic padding are appended.
+
+In one regression case:
+
+- An unmodified segment omitted dialogue near its end.
+- Appending 240 ms of real audio recovered the dialogue.
+- Appending 240 ms of silence did not recover it.
+- Sufficiently strong synthetic noise padding recovered it.
+
+This demonstrates sensitivity to input signal and context.
+The exact internal model mechanism remains unverified.
+
+Full-episode padding passes used:
+
+- Baseline: no padding.
+- P01: 240 ms of silence.
+- P02: 240 ms of synthetic noise, target RMS 0.001.
+- P03: 240 ms of synthetic noise, target RMS 0.01.
+
+Synthetic noise is deterministic, with segment-specific seeds.
+
+Different passes recover and omit different dialogue.
+Majority voting can discard genuine minority-only speech.
+Taking the union without verification can introduce hallucinations.
+
+Human review confirmed that some segments with empty recognition
+alternatives contain genuine speech.
+
+A limited bandpass-filter experiment did not recover the target
+dialogue. Filtering remains an independent future investigation.
+
+## Experiment 7 — MAGPIE evidence accumulation
+
+### 7A — Incremental corroboration
+
+Compared previously recovered subtitle candidates with fresh
+segmented recognition.
+
+- Recovered candidates: 95.
+- Corroborated: 84.
+- Partial: seven.
+- Absent: four.
+- Ambiguous exact matches: two.
+- Unique exact corroboration candidates: 82.
+
+Corroboration is supporting evidence, not automatic acceptance.
+
+### 7B — Novelty classification
+
+Compared fresh recognition with original and recovered captions.
+
+- Recognition words: 3,769.
+- Original-caption-supported words: 2,606.
+- Recovered-caption-supported words: 366.
+- Competing words: 241.
+- Novel words: 556.
+- Unresolved words: 797.
+- Grouped unresolved candidates: 240.
+
+Original caption support takes precedence for classification.
+Original captions are themselves imperfect.
+
+### 7C — Historical recognition evidence
+
+Compared unresolved current recognition with an earlier recognition run.
+
+Of the 797 unresolved words:
+
+- Previously observed: 611.
+- Newly observed hypotheses: 186.
+
+Historical agreement does not establish accuracy.
+Previously observed evidence is not equivalent to human verification.
+
+### 7D — Multi-pass accumulation
+
+Accumulated four recognition passes over the same 170 segments.
+
+- Observations: 680.
+- Unanimous lexical segments: 70.
+- Competing lexical segments: 77.
+- Lexical segments with empty or nonlexical alternatives: three.
+- All-empty segments: 20.
+- Disputed segments: 80.
+- Distinct lexical segment hypotheses: 267.
+
+Preserve all alternatives, including empty observations.
+Same-model passes are correlated evidence, not independent votes.
+No automatic acceptance.
+
+### 7E — Initial disagreement localization
+
+Use monotonic, timestamp-aware lexical alignment to identify
+common anchors across all recognition passes.
+
+Initial parameters:
+
+- Anchor tolerance: 250 ms.
+- Review context: one second on either side.
+- Review-window merge gap: 500 ms.
+
+Initial results:
+
+- Disputed segments: 80.
+- Common anchors: 1,902.
+- Disagreement regions: 116.
+- Review windows: 86.
+- Full-segment fallbacks: one.
+- Raw disagreement coverage: 105.872 seconds.
+- Contextual review coverage: 305.808 seconds.
+- Potential listening-time reduction: 74.71 percent.
+
+One segment exposed a mismatch between decoded text and token-derived
+lexical boundaries, requiring Experiment 7F.
+
+## Experiment 7F — Decoder-aware reconstruction
+
+### Problem
+
+Whitespace and punctuation in raw token streams do not always
+correspond directly to lexical boundaries in decoded text.
+
+The legacy word grouping method can also associate lexical tokens
+with more than one reconstructed word.
+
+These defects can affect word timing and disagreement localization.
+
+### Normalization investigation
+
+Alternative punctuation-normalization strategies were evaluated.
+
+Aggressive punctuation removal can collapse meaningful distinctions:
+
+- Contractions versus ordinary words.
+- Possessives versus plurals.
+- Hyphenated versus unhyphenated forms.
+- Fictional names containing apostrophes.
+- Decimal numbers and comma-separated numbers.
+- Speaker markers and interrupted speech.
+
+Keep reconstruction separate from lexical equivalence decisions.
+
+ROOK is proposed as a dedicated orthographic evidence component.
+
+### Decoder-aware reconstruction
+
+Use decoded text to establish candidate lexical boundaries.
+
+Map the case-folded alphanumeric character stream to exact raw token
+character positions. Preserve original token and character ownership.
+
+For each reconstructed word:
+
+- Retain original decoded spelling.
+- Retain normalized lexical form.
+- Record contributing token indices.
+- Record exact contributing character positions.
+- Derive timing from contributing lexical tokens.
+- Preserve shared timing when one token spans multiple words.
+
+Do not invent subtoken timing.
+
+Boundary classifications:
+
+- lexical_agreement
+- punctuation_boundary_agreement
+- boundary_disagreement
+- character_mismatch
+
+Character-stream agreement is not sufficient to establish semantic
+or lexical equivalence.
+
+The experimental adapter accepts lexical agreement and punctuation
+boundary agreement only after ownership verification and comparison
+with the accumulated decoded lexical sequence.
+
+Boundary disagreement and character mismatch require investigation.
+
+Punctuation-boundary agreement remains experimental: distinctions
+such as decimal punctuation may require stronger semantic checks.
+
+### Ownership and timing audits
+
+Across 680 observations:
+
+- Reconstructed words: 15,085.
+- Verified folded lexical character positions: 58,376.
+- Lexical tokens: 24,857.
+- Legacy duplicate lexical token associations: 84.
+- Remaining shared lexical tokens in this episode: zero.
+- Lost lexical character positions: zero.
+- Unowned lexical tokens: zero.
+
+Three previously problematic observations were reconstructed.
+
+Timing comparisons identified 36 shortened comparable word spans.
+Five unique newly exposed dash-associated timing gaps totaled
+640 ms across the union of passes.
+
+A separate 160 ms interval gained recognition coverage.
+Human listening confirmed dialogue in that interval, but did not
+independently establish exact acoustic word boundaries.
+
+The dash-associated gaps have not been acoustically verified.
+
+### Regression suite
+
+test_magpie_decoder_reconstruct.py contains 51 synthetic tests.
+
+All 51 passed.
+
+Coverage includes contractions, fictional names, repeated words,
+speaker markers, interruptions, Unicode case folding, whitespace,
+punctuation, shared tokens, invalid timings and negative controls
+for corrupted character ownership.
+
+The full episode also passed exact character ownership verification.
+
+These tests establish structural correctness against available
+evidence, not universal transcription accuracy.
+
+### 7F.7 — Decoder-aware localization
+
+The experimental adapter replaces the reconstruction function
+for one process without modifying the production localizer.
+
+Original alignment parameters were retained.
+
+Results:
+
+| Measurement | 7E | 7F.7 |
+|---|---:|---:|
+| Disputed segments | 80 | 80 |
+| Fallback segments | 1 | 0 |
+| Common anchors | 1902 | 1964 |
+| Disagreement regions | 116 | 117 |
+| Review windows | 86 | 87 |
+| Empty alternatives | 50 | 51 |
+| Raw disagreement seconds | 105.872 | 89.200 |
+| Contextual review seconds | 305.808 | 291.360 |
+| Potential listening reduction | 74.71% | 75.90% |
+
+All localization conservation checks passed.
+
+### 7F.8 — Independent differential audit
+
+Compared both localization reports against original 7D evidence.
+
+- Verified segment comparisons: 80.
+- Unchanged segments: 78.
+- Changed segments: two.
+- Added anchors: 62.
+- Removed anchors: zero.
+- Changed existing anchor timings: two.
+- Detected lexical conservation failures: zero.
+- Additional raw disagreement coverage: zero.
+- Additional contextual review coverage: zero.
+- Removed raw disagreement coverage: 16.672 seconds.
+- Removed contextual review coverage: 14.448 seconds.
+
+One changed segment contained corrected anchor timings without
+changing anchor membership, lexical alternatives or review coverage.
+
+The other changed segment eliminated the original fallback and
+localized its disagreements into two short intervals.
+
+Original inputs remained unchanged.
+
+The independent auditor verifies lexical alternative signatures
+with multiplicity. It does not independently verify region ordering
+or full lexical conservation of the original fallback.
+
+## Current performance interpretation
+
+Test episode duration: 2507.243 seconds (00:41:47.243).
+
+Complete disputed segment duration:
+1209.056 seconds (00:20:09.056).
+
+Current contextual review coverage:
+291.360 seconds (00:04:51.360).
+
+Potential listening duration eliminated:
+917.696 seconds (00:15:17.696).
+
+Potential listening-time reduction: 75.90 percent.
+
+This is an interval-coverage measurement, not a measured reduction
+in total human review time.
+
+It excludes shared recognition omissions, independent caption
+disagreements and other unresolved evidence categories.
+
+No claim of 75.90 percent transcription accuracy is intended.
+
+## New experimental scripts
+
+TERN:
+- tern.py
+- tern_recognize.py
+- tern_padding.py
+- tern_compare.py
+
+HUNT:
+- hunt_differential.py
+
+MAGPIE:
+- magpie_incremental.py
+- magpie_novelty.py
+- magpie_history.py
+- magpie_accumulate.py
+- magpie_localize.py
+- magpie_normalization.py
+- magpie_decoder_reconstruct.py
+- magpie_timing_ownership_audit.py
+- magpie_ownership_conservation.py
+- magpie_localize_decoder.py
+- magpie_localization_diff.py
+- test_magpie_decoder_reconstruct.py
+
+These scripts remain experimental until deliberately integrated
+into the production workflow.
+
+## Integration cautions
+
+- The decoder-aware localization adapter currently imports
+  verification helpers from the regression test module.
+- Move reusable verification logic into an appropriate shared
+  implementation module before production integration.
+- Record reconstruction method and verification settings explicitly
+  in localization artifact provenance.
+- Preserve raw token evidence and original punctuation.
+- Do not equate punctuation-independent character agreement with
+  semantic equivalence.
+- Investigate concatenated token streams at segment boundaries,
+  particularly when the first token lacks a leading space.
+- Verify schemas and actual source files before writing consumers.
+- Do not silently promote experimental behavior into production.
+- Validate reconstruction and localization on additional episodes.
+
+## Local regression artifact inventory
+
+All episode-specific artifacts remain local under episodes/Angel/.
+
+| Artifact | Purpose |
+|---|---|
+| S03E01_chirp_full.wav | Full episode PCM |
+| S03E01_vad_01.json | LARK speech probabilities |
+| S03E01_tern_01.json | TERN segmentation |
+| S03E01_tern_6c_evidence.json | Baseline segmented recognition |
+| S03E01_tern_6j_a.json | Silence-padded recognition |
+| S03E01_tern_6j_b.json | Low-noise-padded recognition |
+| S03E01_tern_6j_c.json | Higher-noise-padded recognition |
+| S03E01_tern_6k.json | Recognition pass comparison |
+| S03E01_hunt_05a.json | Historical omission inventory |
+| S03E01_hunt_6c.json | Segmented omission inventory |
+| S03E01_hunt_6d.json | Differential omission inventory |
+| S03E01_gulp_v4.srt | Faithfully ingested original captions |
+| S03E01_magpie_01_missing_preview.srt | Recovered caption candidates |
+| S03E01.json | Historical recognition |
+| S03E01_magpie_7a.json | Incremental corroboration |
+| S03E01_magpie_7b.json | Novelty classification |
+| S03E01_magpie_7c.json | Historical evidence |
+| S03E01_magpie_7d.json | Multi-pass accumulation |
+| S03E01_magpie_7e.json | Original localization |
+| S03E01_magpie_7f2.json | Normalization comparison |
+| S03E01_magpie_7f3.json | Decoder reconstruction |
+| S03E01_magpie_7f4.json | Timing ownership audit |
+| S03E01_magpie_7f5.json | Ownership conservation |
+| S03E01_magpie_7f6.json | Adversarial reconstruction tests |
+| S03E01_magpie_7f7.json | Decoder-aware localization |
+| S03E01_magpie_7f8.json | Localization differential audit |
+
+These artifacts are not repository deliverables.
+Do not upload their contents to GitHub.
+
+## EXACT NEXT STEP — Experiment 7G
+
+Develop a standalone, read-only evidence overlay diagnostic.
+
+Primary inputs:
+
+- episodes/Angel/S03E01_magpie_7b.json
+- episodes/Angel/S03E01_magpie_7c.json
+- episodes/Angel/S03E01_magpie_7d.json
+- episodes/Angel/S03E01_magpie_7f7.json
+
+Inspect actual schemas and source implementations before coding.
+
+Goals:
+
+1. Annotate all 117 localized disagreement regions.
+2. Associate original-caption and recovered-caption evidence.
+3. Associate historical recognition evidence.
+4. Preserve every lexical alternative and supporting pass.
+5. Distinguish complete, partial and absent support.
+6. Distinguish historical observation from human verification.
+7. Identify genuinely novel hypotheses.
+8. Preserve source identity, hashes and evidence provenance.
+9. Do not eliminate review windows during the initial overlay.
+10. Do not automatically accept or reject any dialogue.
+
+Suggested output:
+episodes/Angel/S03E01_magpie_7g.json
+
+No recognition or VAD reruns should be necessary for this experiment.
+
+## Subsequent experiments
+
+7H — Independent omission evidence:
+Overlay HUNT and LARK evidence, including possible omissions shared
+by all recognition passes.
+
+7I — Persistent review queue:
+Retain evidence, alternatives, decisions and dependencies.
+Use stable evidence-based identities rather than transient window IDs.
+Do not repeat human review without a meaningful reason.
+
+7J — Human review evaluation:
+Measure actual listening time, replay count, decision time,
+correction quality and total human effort.
+
+## Git checkpoint notes
+
+The previous repository checkpoint was commit 3cec31b.
+
+The 17 new experimental scripts are intended for the next commit,
+together with this documentation update and ROADMAP.md.
+
+Six older experimental GULP files remain untracked intentionally:
+
+- gulp_audit_v2.py
+- gulp_v3.py
+- gulp_v4.py
+- test_gulp_audit_v2.py
+- test_gulp_v3.py
+- test_gulp_v4.py
+
+Investigate their regression errors separately.
+Do not delete them or include them blindly in this checkpoint.
+
+The combined regression suite must be rerun before committing.
+
+## Current resume prompt
+
+"We are continuing HeHawk after completing Experiment 7F.8.
+Decoder-aware reconstruction and differential localization have
+passed their experimental checks. Begin Experiment 7G, the
+historical and caption evidence overlay. Preserve all alternatives,
+keep production scripts unchanged, and inspect actual input schemas
+before writing code. Provide complete scripts, explicit interpreter
+paths, exact filenames and human-readable timestamps."
