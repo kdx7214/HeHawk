@@ -481,3 +481,28 @@ not a workaround for architectural failure.
 
 The objective is not to eliminate human judgment.
 The objective is to use human judgment where it is genuinely needed.
+
+## Progress checkpoint — 2026-11-26
+
+- [x] 7G: MAGPIE evidence overlay.
+- [x] 7H: HUNT shared recognition gap inventory.
+- [x] 7H.1: Sample-grid precision audit.
+- [x] 7H.2: Integer sample coverage experiment.
+- [x] 7H.3: Independent sample conservation audit.
+- [x] 7H.4: Evidence association sensitivity audit.
+- [x] 7H.5: Corrected evidence associations.
+- [x] 7I.1: Progressive review scheduling.
+- [x] 7I.2: Persistent SQLite review decisions.
+- [ ] 7I.3: Interactive local review interface.
+- [ ] 7I.4: Practical cross-tier review verification.
+- [ ] 7J: Actual human review workload measurement.
+- [ ] Production integration of experimental adapters.
+- [ ] Apply reviewed decisions to caption output.
+- [ ] Final timing and readability verification.
+
+Experimental completion does not imply production
+readiness or verified acoustic correctness.
+
+The immediate priority is interactive human review.
+Additional research remains documented in
+RESEARCH_BACKLOG.md.

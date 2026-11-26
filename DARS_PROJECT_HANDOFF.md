@@ -945,3 +945,163 @@ Instead, establish a general, non-destructive path from uncertain
 automatic interpretation to persistent human review.
 
 Graceful escalation is successful processing.
+
+## Development checkpoint — 2026-11-26
+
+### MAGPIE 7G — Evidence overlay
+
+Completed and verified against Angel S03E01.
+
+- 117 disagreement regions.
+- 258 competing hypotheses, including 51 empty alternatives.
+- 77 regions have at least one exact lexical corroboration.
+- No automatic acceptance or elimination.
+- Original captions, recovered captions, and historical
+  recognition remain separate evidence sources.
+- Lexical corroboration is not proof of acoustic correctness.
+
+### HUNT 7H — Shared recognition gaps
+
+Initial implementation identified 1661 candidate gaps.
+
+The sample-grid precision audit established that 642
+candidates represented zero audio samples and resulted
+from floating-point boundary discrepancies.
+
+Experiments 7H.2 through 7H.5 established:
+
+- Primary coverage uses integer sample arithmetic.
+- Sample rate: 16000 Hz.
+- Provisional recognition boundary guard: 0.050 samples.
+- Maximum observed boundary error: 0.020809174 samples.
+- Corrected candidate inventory: 1019.
+- All 1019 nonzero sample spans conserved exactly.
+- Total uncovered samples: 2058240.
+- Total uncovered duration: 128.640 seconds.
+- Zero nonzero sample spans added or removed.
+- Zero zero-sample candidates remain.
+
+Supplementary evidence retains its original timestamps
+and raw coverage measurements.
+
+Positive supplementary coverage classification requires
+at least one sample duration of overlap.
+
+MAGPIE associations require a positive intersection
+of integer sample spans.
+
+The evidence association audit found:
+
+- 29 newly reported MAGPIE associations represented
+  zero-sample overlaps.
+- 72 supplementary classifications changed when
+  requiring meaningful overlap.
+- One-sample and one-millisecond sensitivity tests
+  produced identical classification counts.
+
+Final HUNT classifications:
+
+- Acoustic only: 181.
+- Caption only: 371.
+- Historical and caption: 373.
+- Historical only: 94.
+
+These are evidence classifications, not confirmed
+missing dialogue.
+
+The sample-grid adapter and association transformation
+are experimental implementations. Production integration
+should explicitly separate primary sample arithmetic
+from supplementary timestamp domains.
+
+### NUTCRACKER 7I.1 — Review scheduling
+
+Three progressive review tiers share one evidence
+inventory and one persistent decision state.
+
+Final corrected scheduling results:
+
+| Tier | Windows | Listening seconds | Gap coverage |
+| --- | ---: | ---: | ---: |
+| Focused | 96 | 334.304 | 33.10% |
+| Balanced | 183 | 680.704 | 70.19% |
+| Comprehensive | 228 | 1306.640 | 100.00% |
+
+All 117 MAGPIE regions are included in every tier.
+
+Both known recognition problem areas remain contained
+in every tier.
+
+Balanced scheduling now uses meaningful historical
+coverage when available. All seven targeted predicate
+tests passed.
+
+Compared with the original schedule, comprehensive
+listening duration decreased by 289.392 seconds.
+
+These durations measure scheduled audio coverage,
+not actual human review time.
+
+### NUTCRACKER 7I.2 — Persistent review decisions
+
+SQLite implementation completed.
+
+- Shared evidence identities across review tiers.
+- Transactional decision updates.
+- Persistent decision history.
+- Idempotent repeated decisions.
+- Explicit correction, rejection, acceptance,
+  deferral, and unresolvable states.
+- Database integrity and foreign-key checks.
+- No automatic decisions from listening or coverage.
+
+Synthetic persistence and revision tests passed.
+
+Current corrected database contains:
+
+- 117 MAGPIE evidence items.
+- 1019 HUNT evidence items.
+- 1136 pending decisions.
+- Zero genuine human decisions.
+- Zero decision history events.
+- Database integrity: PASS.
+
+Local working database:
+
+episodes/Angel/S03E01_nutcracker_v2.sqlite3
+
+Local supporting reports:
+
+episodes/Angel/S03E01_magpie_7g.json
+episodes/Angel/S03E01_hunt_7h5.json
+episodes/Angel/S03E01_nutcracker_7i1c.json
+
+These reports and databases must remain local.
+
+### Next development milestone
+
+7I.3: Implement nutcracker_review.py.
+
+Start with a dependency-light terminal interface
+using the existing NUTCRACKER decision engine.
+
+FFplay is available at /usr/bin/ffplay.
+
+Required capabilities:
+
+- Chronological review navigation.
+- Local audio playback and replay.
+- Adjustable listening context.
+- Display of competing hypotheses and caption evidence.
+- Explicit individual evidence decisions.
+- Immediate transactional persistence.
+- Resume after interruption.
+- Shared decisions across review tiers.
+- Measurement of playback and active review time.
+
+7J: Measure actual human review workload and
+evaluate practical usefulness.
+
+Prioritize usable review functionality over additional
+research tangents. Preserve deferred research in
+RESEARCH_BACKLOG.md.

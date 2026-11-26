@@ -19,3 +19,7 @@
 !/knowledge/*.json
 !/knowledge/*.md
 
+
+# Local source backups
+/*_original.py
+/*_backup.py
