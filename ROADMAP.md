@@ -374,3 +374,110 @@ Actual human review savings remain to be measured.
 - Keep experimental code separate from production behavior.
 - Keep all dialogue-bearing evidence local.
 - Maintain documentation at successful experimental checkpoints.
+
+---
+
+## 11. Graceful uncertainty handling
+
+Permanent architectural requirement, added 2026-11-26.
+
+HeHawk must recognize the limits of its own interpretations.
+
+Human-authored subtitles can contain unpredictable, inconsistent
+or undocumented conventions. Recognition systems can also produce
+unexpected, ambiguous or contradictory evidence.
+
+It is neither practical nor desirable to encode a special-case
+solution for every possible input.
+
+### 11.1 General requirements
+
+- Treat uncertainty as an ordinary processing outcome.
+- Distinguish uncertainty from software failure.
+- Preserve original evidence and alternative interpretations.
+- Separate structural markup from inferred semantic meaning.
+- Separate automatic resolution from human verification.
+- Localize uncertainty wherever reliably possible.
+- Continue independent work when dependencies permit.
+- Escalate unresolved interpretations to human review.
+- Never silently discard information to simplify processing.
+- Never fabricate certainty to satisfy downstream components.
+
+### 11.2 Component responsibilities
+
+GULP:
+Preserve original content and structural information without
+assuming that presentation conventions establish semantic roles.
+
+ROOK:
+Represent ambiguous orthographic and semantic interpretations.
+Do not force unsupported conventions into known categories.
+
+MAGPIE:
+Retain competing interpretations and supporting evidence.
+Do not confuse lexical agreement with semantic certainty.
+
+LARK and HUNT:
+Preserve acoustic uncertainty independently of lexical evidence.
+Do not infer absence of speech solely from absent recognition.
+
+CHIRP and BOWERBIRD:
+Permit unknown speakers, ambiguous transitions and insufficient
+acoustic evidence without forcing assignments.
+
+SWAN:
+Preserve unresolved presentation conflicts for review rather
+than damaging dialogue or synchronization to satisfy formatting rules.
+
+NUTCRACKER:
+Persist human decisions, including deferred and unresolvable cases.
+Preserve decision provenance and relevant evidence versions.
+
+ZOOKEEPER:
+Coordinate partial completion, review requirements and dependencies.
+Do not repeatedly process unchanged unresolved cases.
+Distinguish recoverable uncertainty from actual processing errors.
+
+SCOOP:
+Preserve evidence required by unresolved review items and
+historical human decisions.
+
+STORK:
+Clearly distinguish provisional previews from approved final output.
+Do not silently present unresolved corrections as verified results.
+
+### 11.3 Validation requirements
+
+Develop synthetic regression cases covering:
+
+- Bracketed dialogue.
+- Mixed dialogue and non-dialogue annotations.
+- Unusual speaker and source attribution.
+- Ambiguous punctuation and lexical boundaries.
+- Inconsistent conventions within one episode.
+- Unsupported but structurally preservable input.
+- Conflicting evidence.
+- Insufficient evidence.
+- Human-confirmed unresolvable cases.
+- Actual processing errors.
+
+Verify that uncertain input does not cause:
+
+- Silent information loss.
+- Duplicate dialogue insertion.
+- Unsupported automatic correction.
+- Unnecessary termination of independent processing.
+- Loss of previously completed work.
+- Repeated review requests without meaningful new evidence.
+- Software defects being concealed as ordinary uncertainty.
+
+### 11.4 Success criteria
+
+A component that correctly identifies its inability to resolve
+an interpretation and safely escalates it has succeeded.
+
+Human intervention is a supported part of the architecture,
+not a workaround for architectural failure.
+
+The objective is not to eliminate human judgment.
+The objective is to use human judgment where it is genuinely needed.

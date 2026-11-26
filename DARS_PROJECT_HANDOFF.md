@@ -801,3 +801,147 @@ historical and caption evidence overlay. Preserve all alternatives,
 keep production scripts unchanged, and inspect actual input schemas
 before writing code. Provide complete scripts, explicit interpreter
 paths, exact filenames and human-readable timestamps."
+
+## Architectural addendum — Graceful uncertainty handling
+
+Added 2026-11-26, following Experiment 7F.8 and before 7G.
+
+### Motivating edge case
+
+Human-authored captions may use identical presentation conventions
+for fundamentally different semantic content.
+
+Synthetic examples:
+
+- [ Door opening ]
+- [ On PA: Please come here ]
+- [ Whispering ] Get down.
+- [ John: Stop that! ]
+
+Bracketed content may contain sound descriptions, speaker
+attribution, source attribution, actual dialogue or combinations
+of these categories.
+
+Neither unconditional inclusion nor unconditional exclusion
+of bracketed text is safe.
+
+Recognition may corroborate dialogue within bracketed spans,
+but absence of recognition does not establish that the text
+is non-dialogue.
+
+This example represents a broader class of unpredictable
+human-authored conventions.
+
+### General uncertainty-handling contract
+
+HeHawk must support uncertainty as an ordinary processing outcome,
+not as an exceptional software failure.
+
+Proposed processing outcomes:
+
+| Status | Meaning |
+|---|---|
+| RESOLVED | A validated rule establishes an acceptable interpretation |
+| AMBIGUOUS | Multiple plausible interpretations exist |
+| INSUFFICIENT_EVIDENCE | Available evidence cannot establish an interpretation |
+| UNSUPPORTED | An encountered convention or structure is not understood |
+| CONFLICTING_EVIDENCE | Available evidence supports incompatible interpretations |
+| ERROR | An actual software or processing failure occurred |
+
+These names are provisional until a shared result schema is designed.
+
+RESOLVED does not necessarily mean human-verified.
+Resolution status and verification provenance must remain separate.
+
+### Required behavior
+
+When reliable interpretation is not possible:
+
+1. Preserve the complete original evidence.
+2. Preserve available alternative interpretations.
+3. Record the reason automatic resolution was unsuccessful.
+4. Identify the smallest reliably isolated affected region.
+5. Create a persistent human review requirement.
+6. Continue processing unrelated regions where dependencies permit.
+7. Prevent uncertain interpretations from silently becoming facts.
+8. Do not automatically delete, replace or duplicate dialogue.
+9. Do not fabricate a resolution to satisfy downstream requirements.
+10. Preserve the ability to resume processing after human intervention.
+
+Actual software errors must remain distinguishable from legitimate
+uncertainty. Do not use broad exception handling to disguise
+implementation defects as ambiguous input.
+
+If an error compromises source integrity or artifact validity,
+stop the affected processing stage and preserve diagnostic evidence.
+
+### Structural versus semantic interpretation
+
+Presentation markup does not establish semantic meaning.
+
+Preserve original caption text, delimiters, line boundaries,
+indentation and formatting independently of inferred meaning.
+
+Potential semantic span categories include:
+
+- Dialogue.
+- Sound description.
+- Speaker attribution.
+- Source attribution.
+- Delivery description.
+- Language attribution.
+- Presentation markup.
+- Unknown or ambiguous content.
+
+Semantic classifications may be provisional and overlapping.
+Do not require every caption to have a single semantic category.
+
+### Human review requirements
+
+A review item should eventually provide:
+
+- Original evidence.
+- Relevant timestamps and contextual playback.
+- Available recognition alternatives.
+- Relevant acoustic and historical evidence.
+- Proposed interpretations.
+- Reason for escalation.
+- Dependencies and affected downstream products.
+
+Supported human outcomes should include:
+
+- Accept.
+- Reject.
+- Edit.
+- Defer.
+- Mark as unresolvable with current evidence.
+
+An unresolvable decision is a valid outcome.
+
+NUTCRACKER should preserve such decisions and their provenance.
+ZOOKEEPER should not repeatedly reopen them without meaningful
+new evidence or an explicit human request.
+
+### Immediate implications for Experiment 7G
+
+- Preserve all original caption content.
+- Permit lexical evidence matching within bracketed spans.
+- Do not infer semantic roles solely from punctuation or delimiters.
+- Distinguish lexical corroboration from semantic interpretation.
+- Do not treat unmatched annotation words as confirmed omissions.
+- Preserve ambiguous evidence without automatically resolving it.
+- Audit existing comparison routines for unsafe assumptions.
+- Add synthetic regression cases for unusual caption conventions.
+
+Experiment 7G remains a read-only evidence overlay.
+No automatic dialogue acceptance, rejection or review elimination.
+
+### Architectural objective
+
+Do not attempt to anticipate every possible malformed, unusual
+or undocumented human-authored convention.
+
+Instead, establish a general, non-destructive path from uncertain
+automatic interpretation to persistent human review.
+
+Graceful escalation is successful processing.
