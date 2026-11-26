@@ -1105,3 +1105,66 @@ evaluate practical usefulness.
 Prioritize usable review functionality over additional
 research tangents. Preserve deferred research in
 RESEARCH_BACKLOG.md.
+
+## Development checkpoint — 2026-11-26 (GUI)
+
+### 7I.3a — NUTCRACKER player
+
+Implemented nutcracker_player.py using persistent MPV
+playback controlled through local JSON IPC.
+
+All initial player integration tests passed.
+
+### 7I.3b — Graphical reviewer
+
+Implemented nutcracker_review.py using Tkinter.
+
+Architectural decisions:
+- Independent review and video windows.
+- Support single-monitor and dual-monitor workflows.
+- Remember window placement and playback preferences.
+- Reuse the existing transactional decision engine.
+- Subtitle preview selection does not accept evidence.
+- No modifications to original episode media.
+
+Verified development environment:
+- X11 under Linux Mint Cinnamon.
+- Tkinter 8.6.
+- MPV, wmctrl and xwininfo available.
+- Primary display: 3840x2160 at 0,0.
+- Secondary display: 1920x1080 at 3840,0.
+
+Initial GUI testing identified cramped buttons and
+navigation controls disappearing outside the window.
+
+Revised GUI provided with padded buttons, separate
+navigation controls and keyboard navigation.
+
+Revised layout still requires practical verification.
+
+### Resume here
+
+Continue GUI usability testing before testing decisions.
+
+Test database:
+episodes/Angel/S03E01_nutcracker_gui_test.sqlite3
+
+Production review database:
+episodes/Angel/S03E01_nutcracker_v2.sqlite3
+
+Local preferences:
+nutcracker_settings.json
+
+Do not commit databases, preferences, media, captions
+or episode-specific evidence reports.
+
+Remaining work:
+- Refine evidence presentation and GUI usability.
+- Verify navigation and window placement persistence.
+- Verify cross-tier decision persistence.
+- Verify episode-to-video provenance.
+- Implement historical recognition previews.
+- Implement deferred-item navigation.
+- Measure actual human review workload.
+
+No genuine human review decisions have been confirmed.
