@@ -99,3 +99,27 @@ for foreign symbologies, not language identification or translation.
 
 These are deferred implementation/validation topics, not claims of existing
 capability. Keep current single-episode workflow development the priority.
+
+
+## Further deferred investigations — 2026-11-27 (CLI checkpoint)
+
+- Human-directed translation: select interval and spoken language (unknown allowed),
+  request English translation, review/edit/accept/reject; preserve originals and
+  narrative intent. Reuse interval UI and series context. No automatic whole-episode
+  translation or language classification required now.
+- Alternate release alignment: offsets, scaling, piecewise mappings, exclusive scenes,
+  PAL speed/pitch differences and their effects on fingerprints, ASR, FINCH and speaker
+  embeddings. Do not infer speedup from frame rate alone.
+- Multi-reference source lineage and alignment, including partial hand-authored SRTs.
+- Optional attribution/administrative text classification and recurring confirmed
+  patterns; manual deletion suffices initially. Distinguish legitimate on-screen text.
+- Overlapping speech, sound/music events, human-verified acoustic event recognition,
+  optional source separation and engine-specific evidence adapters.
+- Versioned knowledge dependencies, targeted reassessment, grouped undo, reproducible
+  exports, transactional migrations, backup/restore and portability.
+- Resource-aware scheduling, model reuse/prefetch, CPU/RAM/disk/network limits and
+  user reserves; validate accessibility and output profiles in practical use.
+
+Immediate priority is now the single-filename CLI integration prototype ending in
+CANARY diagnostic output, before resuming GUI redesign. These investigations must
+not block that prototype. No new research or production capability is claimed.

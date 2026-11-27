@@ -1212,3 +1212,35 @@ Existing regression files and databases listed in the preceding checkpoint remai
 local. Do not commit media, captions, embeddings, dialogue-bearing evidence,
 local configuration or review databases. Use exact relative filenames, explicit
 interpreter paths and human-readable timestamps with decimal seconds when needed.
+
+
+## Development checkpoint — 2026-11-27 (CLI integration)
+
+This checkpoint supersedes the preceding implementation order, not its requirements
+or experimental results. GUI development remains paused. No new code or tests
+are claimed complete.
+
+Next: implement hehawk.py incrementally, beginning with read-only FFprobe media
+inventory from a single video filename. Test against the actual mounted CIFS
+library, with explicit local workspace configuration before generating artifacts.
+Then establish project identity, optional series NFO import, track selection,
+resource extraction, GULP integration, evidence preparation, reconciliation,
+review scheduling and CANARY diagnostic output. Use a fresh isolated workspace
+so existing research artifacts cannot conceal missing dependencies. Preserve all
+existing research files and review databases.
+
+The media library is a source, never a workspace. Never open source media or NFO
+for writing, rename, delete or create intermediates alongside them. STORK creates
+separate output; any later publication is explicit. Prefer OS-enforced read-only
+access where practical. No silent storage fallback. For a Season 3 episode,
+tvshow.nfo is one directory above the containing season directory (two parent
+steps from the video file itself).
+
+The CLI is a single-episode prototype of the eventual unattended batch backend,
+not a separate implementation. CANARY (Caption Annotation and Narrative Anomaly
+Review utilitY) produces a separate annotated SRT and local audit, not corrections.
+Warn, don't correct; inform, don't obstruct. See ROADMAP for details.
+
+Resume with media inspection only: no recognition models, GUI or source writes.
+Use explicit interpreter and exact filenames in commands. Keep media, dialogue,
+local configuration, embeddings, reports and databases out of Git.

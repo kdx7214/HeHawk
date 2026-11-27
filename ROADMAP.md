@@ -641,3 +641,92 @@ persistent state. Resume 7I.4 human-oriented presentation, playback and applicat
 shell, validate review semantics and persistence, then measure actual human effort
 (7J). Keep technical controls behind progressive disclosure. Preserve experimental
 results and avoid expanding research scope before a usable workflow exists.
+
+
+## 13. CLI integration and additional operational requirements — 2026-11-27
+
+Proposed requirements; not implemented. This section supersedes the immediate
+implementation order in 12.7 while preserving its GUI requirements.
+
+### 13.1 Single-file integration prototype
+
+Accept one required video filename (absolute or relative), with independently
+configured local storage. Incrementally validate: FFprobe inventory; project
+identity and initialization; optional tvshow.nfo discovery/import; audio and
+subtitle selection; extraction; GULP normalization; acoustic and recognition
+evidence; MAGPIE/HUNT/SWAN analysis; NUTCRACKER scheduling; CANARY export.
+Use actual network library paths and a fresh isolated workspace. NFO is optional,
+series-shared and provenance-bearing; malformed/missing metadata must not block
+independent work. Test movies, episodes, DVD/Blu-ray, foreign-language media,
+missing subtitles and ambiguous tracks. Defer ambiguity rather than guess.
+Test restart, reuse, interruption, missing intermediates, changed settings and
+storage failure. GUI and future batch queue invoke the same backend. No unattended
+human acceptance. Begin with inventory only; no expensive processing yet.
+
+Source media and NFO are immutable inputs. Never write, rename, move or delete
+them or place intermediate files beside them. Prefer OS read-only access where
+practical. All working outputs use validated local roots; no silent fallback.
+STORK produces separate files, not in-place changes. Explicit publication remains
+separate from processing. Correct NFO discovery for Series/Angel (1999)/Season 3/
+S03E01.mkv is Series/Angel (1999)/tvshow.nfo.
+
+### 13.2 CANARY diagnostic presentation
+
+CANARY: Caption Annotation and Narrative Anomaly Review utilitY. Produce a separate
+viewing SRT and local generation audit from the integrated workflow. Preserve
+baseline caption text; identify suspected competing wording and speech gaps with
+short readable warnings and evidence IDs. Distinguish speech absent from recognition
+from speech absent from captions; do not assert confirmed omissions. Focused tier
+initially, with balanced/comprehensive available later. Avoid overlapping cues,
+obscured dialogue and excessive reading burden; report undisplayed warnings.
+Do not accept evidence or modify originals. Evaluate warning usefulness, false
+positives and distraction during ordinary full-episode viewing. Exact annotation
+placement and timing remain experimental. CANARY is an integration test, not a
+replacement for persistent review or final export.
+
+### 13.3 Shared editing engine
+
+Guided review and unrestricted manual editing share the same validation, persistence
+and revision rules. Support add, edit, delete, split, merge, retime and restore on
+any caption, not only flagged ones. Deletion is reversible exclusion from the working
+track, not destruction of evidence; prevent automatic reinsertion of deliberately
+deleted content. Preserve attribution/provenance and applicable attribution obligations.
+Recognize that source credits, administrative text and on-screen text may be unspoken;
+absence of speech does not justify deletion. Dedicated attribution detection is not
+required initially. Manual editing without ASR is a valid workflow and integration test.
+Focus on fidelity, completeness, timing, readability and accessibility, not feature
+parity with Subtitle Edit or elaborate karaoke/typesetting/disc authoring.
+
+### 13.4 Track relationships and imported references
+
+Audio language, subtitle language and relationship are independent. Same-language
+subtitles may translate the original rather than transcribe a dub. Support explicit
+transcription, translation, mixed and unknown relationships. Declare component
+capabilities; disable unsupported English ASR and incompatible lexical comparisons
+for foreign audio. Timing/manual editing remain useful; acoustic and speaker analysis
+require validation. HUNT gaps in translated captions are not proof of omissions.
+No automatic language detection or multilingual models in the initial workflow.
+
+Support multiple independent reference subtitle imports, including partial manually
+created SRTs, downloaded files, embedded tracks and previous exports. Preserve original
+bytes, hash, origin, language, release association and lineage; duplicates and derived
+sources are not independent corroboration. No reference is infallible. Initial import
+and manual association precede advanced alignment. Distinguish work, edition, asset
+and track; reuse series knowledge but transfer dialogue decisions only after validated
+alignment. Release-specific timing stays separate. Country of origin is not required.
+Timeline mappings may be identity, offset, scale, scale plus offset, piecewise or
+unmapped for exclusive scenes. Preserve source timestamps; avoid cumulative rounding.
+PAL 24-to-25 speedup is a possible scale of 0.96, not inferred from frame rate alone.
+
+### 13.5 Evidence and presentation durability
+
+Separate overlapping timeline events from output cue limitations; timestamps are not
+unique word identities. Preserve raw engine observations and versioned common evidence;
+confidence scores across engines are not assumed comparable. Output profiles may later
+include faithful restoration, dialogue-only, accessible sound/speaker annotations,
+readability, translation and diagnostic preview. Preserve human decisions, undo/grouped
+revisions, dependencies and export provenance. Use transactional schema migrations,
+backups and selective regeneration; protect irreplaceable human work. Accessible UI:
+no essential information conveyed only by audio or color; keyboard and adjustable
+text/contrast/playback. Resource-aware scheduling and disaster recovery remain design
+requirements, not immediate implementation scope.
