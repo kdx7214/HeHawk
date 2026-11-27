@@ -1168,3 +1168,47 @@ Remaining work:
 - Measure actual human review workload.
 
 No genuine human review decisions have been confirmed.
+
+
+## Development checkpoint — 2026-11-27 (operational design)
+
+This checkpoint supersedes earlier resume instructions, not experimental results.
+GUI implementation is paused by agreement pending operational specifications.
+No new production implementation or genuine review decisions are claimed.
+
+### GUI findings and next revision (7I.4)
+
+Initial review GUI was difficult to understand without inspecting raw JSON.
+Present one understandable question at a time, why it was flagged, surrounding
+context, all actual text alternatives and highlighted differences. Previewing
+an alternative must not accept it. Distinguish MAGPIE competing wording from
+HUNT speech missing from recognition (not necessarily from original captions).
+Support explicit uncertainty, deferral, rejection, acceptance and manual edits.
+Audit existing decision semantics before changing schemas; avoid lossy mappings.
+Manual correction is first-class: editable multiline text from an alternative
+or blank, precise correction scope, punctuation/case/speaker lines preserved,
+MPV preview before confirmation, unsaved-change protection and revision history.
+Separate dialogue and timing edits; never invent partially understood words.
+
+Keep evidence interval, scheduled review window and playback context separate.
+Proposed playback defaults: 10 seconds before and after, independently adjustable.
+Use unobtrusive MPV overlay with persistent evidence marker, playhead and timecode;
+configurable placement/size/opacity and disable option. No flashing or forced pause.
+Independent video/review windows; monitor-aware placement restoration.
+Proposed modules: hehawk_gui.py, hehawk_project.py, nutcracker_presentation.py,
+nutcracker_player.py, nutcracker_review.py and existing nutcracker.py engine.
+Names and schemas remain provisional. Test presentation independently, then playback,
+application shell, GUI, persistence and practical usability. Use the isolated GUI
+test database; preserve the real review database. Test with minimal instruction.
+
+### Resume here
+
+First define operational contracts for media ingestion/project initialization,
+resource acquisition, persistent identity, storage validation and processing stages.
+Then resume the human-oriented review redesign. Keep advanced controls hidden
+until requested. Do not start deferred research or batch implementation yet.
+See ROADMAP.md, operational architecture addendum, for today's requirements.
+Existing regression files and databases listed in the preceding checkpoint remain
+local. Do not commit media, captions, embeddings, dialogue-bearing evidence,
+local configuration or review databases. Use exact relative filenames, explicit
+interpreter paths and human-readable timestamps with decimal seconds when needed.

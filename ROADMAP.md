@@ -506,3 +506,138 @@ readiness or verified acoustic correctness.
 The immediate priority is interactive human review.
 Additional research remains documented in
 RESEARCH_BACKLOG.md.
+
+
+## 12. Operational architecture — 2026-11-27
+
+Design requirements and proposals; not implemented or validated unless stated.
+This section refines earlier operational priorities. Task-oriented UI,
+evidence-oriented backend. Opening media is distinct from processing it.
+
+### 12.1 Media identity and discovery
+
+One configurable read-only media library root contains Movies, Series and
+MusicVideos (ignored initially). Example relative paths:
+- Movies/Aladdin (1992).mkv
+- Series/Angel (1999)/Season 3/S03E01.mkv
+- Series/Angel (1999)/tvshow.nfo
+
+The library is a single CIFS share; mounting/authentication belongs to the OS.
+Store portable relative paths with forward slashes, preserving original spelling.
+Resolve against configured absolute roots using platform-aware path handling.
+Support explicit absolute paths without relying on shell tilde expansion.
+Parse terminal parenthesized year, season and episode where reliable; never rename
+sources. Support arbitrary local files and absent or malformed metadata.
+Read optional Kodi NFO, cache provenance and original metadata, import namespaced
+external IDs and character/actor candidates. No internet dependency. External IDs,
+paths and titles are not internal identity. Distinguish series/movie, episode,
+media release/version and audio/subtitle track identity. Different releases may
+have different timelines. Do not silently transfer timing or decisions.
+Resolve ambiguity explicitly when needed. Source fingerprint and verification
+policy remains to be designed, including cost of full network reads.
+
+### 12.2 Storage and resource acquisition
+
+User environment: 1 TB system drive, 4 TB secondary SSD, existing workspace
+~/drive_d/t. Do not assume these paths or capacities on other installations.
+Independently configurable media, workspace, persistent data, model, cache,
+temporary and export roots. Resolve and validate paths and expected volumes.
+Detect missing mounts even when mount-point directories still exist; never silently
+fall back to root filesystem or /tmp. Check permissions, available space and
+configurable reserve per actual filesystem. Estimate peak concurrent usage.
+Configure subprocess and library temporary/cache locations before initialization
+where supported (TMPDIR/TEMP/TMP, Python tempfile, model caches, SQLite temporary
+storage, logs). Test actual third-party behavior; configuration alone is not proof.
+Use operation-specific temporary directories and incomplete-file markers; verify
+before publication. Recover safely from cancellation, crashes and disk exhaustion.
+
+Full local MKV staging is optional. Prefer selective FFmpeg extraction from the
+network for unattended audio/subtitle analysis; use one read pass where practical.
+Inventory streams with ffprobe, preserve native subtitle formats including unsupported
+bitmap tracks, retain track metadata and original timeline mapping. Preserve suitable
+native audio/channel information when needed; derive 16 kHz mono for recognition.
+Do not assume extraction saves network bandwidth: interleaved streams may require
+reading most of the source. Reuse verified extracted resources. MPV may play the
+network source or a verified local copy. Remuxing requires original media access.
+Proposed policies: extract-only, full staging, automatic. Modules request resources
+rather than assume a local MKV. Exact extraction formats and timestamp verification
+remain open. Do not mix commentary, alternate language or unrelated audio tracks.
+
+### 12.3 Persistent data and cleanup
+
+Separate application preferences/models, movie or series knowledge, season/release/
+track conventions and episode-specific evidence, review and exports. A mirrored
+hierarchy with project manifests and SQLite knowledge/review databases is proposed,
+not a finalized schema. Persist source provenance, dependency versions and review
+position. Save confirmed decisions immediately; preserve revision history.
+Keep human decisions and curated references protected; retain reusable evidence
+unless explicitly removed; allow controlled cleanup of regenerable resources only
+when no active dependency requires them. Never clean original media. Export to
+network is a separate explicit operation. Support independent data backups.
+
+### 12.4 Processing lifecycle and batch scheduling
+
+Lightweight open: identify media, discover existing project and metadata, inspect
+streams as needed, restore work and present task choices. Do not automatically
+run acoustic analysis merely because a video is opened.
+Process Video exposes desired outcomes (generate, repair, timing, audit), a recommended
+plan and optional advanced settings. Speaker references and export are separate tasks.
+ZOOKEEPER manages a dependency graph, not a mandatory linear pipeline. Each stage
+needs a contract: purpose, inputs, outputs, consumers, execution conditions,
+invalidation, uncertainty and human involvement. Timing-only tasks need not run ASR.
+Track individual operation states; derive project status from them. Preserve valid
+completed stages and checkpoints, support cancellation and restart. Never silently
+replace human decisions when new evidence becomes available.
+
+Future batch scheduling: persistent queue of individual episode jobs, initially
+serial execution with intra-episode parallelism. Automated evidence preparation
+must run independently of GUI and human review. Prepare a season overnight, then
+present episode-level review queues and actionable exceptions. No unattended human
+acceptance. Defer ambiguous track selection or corrupt episodes and continue independent
+jobs; suspend affected work on storage or integrity failure. Reuse valid checkpoints
+and available local resources during network outages. Allow explicit retention policy
+for staged copies. Batch is a scheduling feature, not a separate processing engine.
+Single-episode development remains the immediate priority.
+
+### 12.5 Speaker enrollment and transition review
+
+Optional preparation before batch processing: mark video/audio intervals and assign
+known characters, using NFO candidates when available. Also enroll during normal
+review. Preserve local series/movie reference library, source track and interval,
+provenance, model version and revision history. Distinguish character identity from
+acoustic voice profile and sample conditions (recasting, possession, modified voices).
+Support apparent emotion, delivery, voice type, pitch, apparent vocal age, optional
+language, noise degree, music, competing speech, echo/hiss/hum/distortion and notes.
+Unknown values are valid; avoid hard exclusions based on voice descriptors.
+Keep enrollment and evaluation samples separate. Noisy examples may be useful.
+FINCH should eventually supply automatic acoustic measurements to reduce manual
+annotation burden, preserving human observations separately from measured estimates.
+
+Distinguish speaker change detection from speaker identification. CHIRP transitions,
+BOWERBIRD references, PARAKEET word timing, LARK pauses, ROOK caption markers and
+FINCH noise evidence can support proposed changes within one subtitle. Evidence
+sources may be correlated. NUTCRACKER should present speaker transition decisions;
+propose speaker markers or cue splits only with timing/readability evidence. Do not
+blindly split at acoustic boundaries. Preserve embeddings and intervals for targeted
+reassessment after new references or terminology become available. Protect confirmed
+decisions. Reference-assisted accuracy and short-transition reliability need testing.
+
+### 12.6 Foreign text preservation (current scope)
+
+Preserve Unicode throughout ingestion, comparison, review and export. Pass foreign
+text using other language symbologies through without automatic textual changes;
+protect affected spans from English ASR-based corrections, preserve surrounding
+English where reliably separable, allow explicit manual editing and non-destructive
+timing analysis. Character repertoire is not language identification: accented names
+and ASCII-only foreign dialogue are counterexamples. Conservative protection rules
+and regression tests remain to be defined. Preserve raw text independently of
+comparison normalization. Do not introduce language detection, multilingual models
+or translation now. See deferred research backlog.
+
+### 12.7 Near-term implementation order
+
+Specify media ingestion and project initialization first, then stage contracts and
+persistent state. Resume 7I.4 human-oriented presentation, playback and application
+shell, validate review semantics and persistence, then measure actual human effort
+(7J). Keep technical controls behind progressive disclosure. Preserve experimental
+results and avoid expanding research scope before a usable workflow exists.

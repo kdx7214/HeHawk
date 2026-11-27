@@ -56,3 +56,46 @@ time becomes available.
 
 Research findings should inform development without
 unnecessarily blocking usable releases.
+
+
+## Additional deferred investigations — 2026-11-27
+
+### FINCH — Frequency Investigation and Noise Characterization Helper (proposed)
+
+- Time-indexed acoustic characterization, using native audio where appropriate.
+- Noise floor/SNR estimates with uncertainty; nonstationary noise and quiet speech.
+- Hum, hiss, clipping, transients, pitch, music, competing speech and reverberation.
+- Use LARK probabilities where useful; do not assume non-speech means pure noise.
+- Separate automatic measurements from human observations and overrides.
+- Evaluate optional preprocessing independently against raw audio; never assume
+  filtering improves recognition. Target detailed analysis where justified.
+
+### Speaker references and transitions
+
+- Measure reference-assisted identification and short speaker transition accuracy.
+- Evaluate diverse deliveries, noise conditions, modified voices and cross-language
+  embeddings; separate enrollment from evaluation to avoid leakage.
+- Investigate reuse of embeddings and targeted reassessment after knowledge changes.
+- Evaluate cue splitting and speaker-marker proposals for reading comfort.
+
+### Multilingual dialogue (explicitly deferred)
+
+- Spoken language identification at interval level, including uncertainty.
+- Multilingual recognition and English translation as optional new subtitles.
+- Distinguish transcription, translation, language attribution and fictional speech.
+- Preserve original text and evidence; avoid fabricated translations or changing
+  deliberately untranslated narrative content without human approval.
+- Evaluate cross-language speaker identification.
+
+Current scope is Unicode preservation and conservative pass-through protection
+for foreign symbologies, not language identification or translation.
+
+### Later engineering investigations
+
+- Cross-platform volume identity and missing-mount detection.
+- Actual temporary/cache behavior of third-party tools.
+- Efficient source verification and selective extraction timeline conservation.
+- Persistent unattended season queue, resource limits, recovery and reassessment.
+
+These are deferred implementation/validation topics, not claims of existing
+capability. Keep current single-episode workflow development the priority.
