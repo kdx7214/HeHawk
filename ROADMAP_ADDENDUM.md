@@ -68,3 +68,80 @@ library, even when it is writable. Final transfer
 remains a manual user operation.
 
 SCOOP must not automatically remove staged deliverables.
+
+## 2026-11-27 — Phase 5C interim checkpoint
+
+### Accessible presentation principle
+
+The subtitle author controls what is communicated.
+The viewer controls how it is displayed.
+
+Preserve faithfully.
+Interpret intelligently.
+Present consistently.
+
+### Component responsibilities
+
+- OWL: native preservation verification and future
+  bitmap recognition.
+- ROOK: structural and semantic caption interpretation.
+- GULP: working text normalization, presentation
+  auditing and optional contextual case restoration.
+- MAGPIE: independent recognition and terminology
+  evidence where available.
+- NUTCRACKER: evidence provenance, uncertainty,
+  review decisions and reversible corrections.
+- SWAN: readable output grouping, timing and
+  presentation conflict resolution.
+- ZOOKEEPER: dependency-aware processing modes,
+  scheduling and selective execution.
+- SCOOP: authorized cleanup of regenerable resources.
+
+Presentation-only processing must not trigger
+unnecessary acoustic or recognition dependencies.
+
+Preserve original styles, positioning and colors
+as potential evidence, even when the accessible
+export omits them.
+
+Do not infer speaker identity solely from formatting.
+
+Clean SRT should delegate font selection, size,
+outline and placement to the playback application.
+
+Preserve meaningful emphasis and speaker distinctions.
+Avoid unnecessary styling and artificial indentation.
+
+Case restoration is distinct from formatting removal.
+It must remain optional, independently reversible
+and subject to evidence-aware review.
+
+### Embedded and external SubRip
+
+Embedded SubRip and external SRT files require
+different native preservation contracts.
+
+Embedded SubRip:
+- Preserve native packets in a qualified container.
+- Verify packet timing, payload and initialization.
+- Retain source stream metadata and provenance.
+
+External SRT:
+- Preserve exact original bytes and file hash.
+- Do not normalize encoding, BOM or line endings
+  during native ingestion.
+- Preserve source association and lineage.
+- Treat parsing and normalization as derived operations.
+- Report malformed records and encoding uncertainty.
+- Support partial, manually authored, downloaded and
+  previously exported reference subtitles.
+- Validate release-specific alignment before reuse.
+
+Do not assume external SRT timing matches the
+associated media merely because filenames match.
+
+Protect confirmed human corrections from automatic
+recognition-based replacement.
+
+These are planned ingestion requirements. External
+SRT production ingestion is not yet implemented.

@@ -356,3 +356,146 @@ Temporal subtitle overlap is not inherently erroneous.
 The user recalls simultaneous VobSub captions placed
 in separate screen regions. Preserve these events
 independently rather than normalizing them at ingestion.
+
+## 2026-11-27 — Phase 5C interim checkpoint
+
+### Native subtitle qualification
+
+FFmpeg 6.1.1-3ubuntu5.
+
+| Codec | Specimen | Packets | Initialization | Canvas |
+|---|---|---:|---|---|
+| ASS | Angel | 415 | Match | Not reported |
+| MOV_TEXT | The Adam Project | 3637 | Match | Not reported |
+| PGS | Supernatural | 1062 | Match (absent) | Discovered |
+| VobSub HD | Coco | 1709 | Match | 1920x1080 |
+| VobSub SD | Inuyasha | 290 | Match | 720x480 |
+| SubRip | Almost Human | 773 | Match (absent) | Not reported |
+
+All six specimens passed packet and native
+initialization verification.
+
+Total verified source packets: 7886.
+
+MOV_TEXT could not be stream-copied into Matroska
+using the tested FFmpeg version.
+
+Default MP4 remuxing added a 20-byte btrt box to
+the original 48-byte initialization block.
+
+Disabling btrt generation with -write_btrt 0
+preserved the original initialization hash.
+
+The PGS resource reported 1920x1080 dimensions
+that were absent from the source probe. This was
+accepted as resource-side dimension discovery,
+not proof of rendering equivalence.
+
+Container-level start times, duration summaries,
+frame counts and metadata tags sometimes differed
+despite identical packet digests.
+
+These observations must not be mistaken for
+demonstrated changes in packet timing.
+
+The SubRip specimen contains manually authored
+subtitles. All 773 packets were preserved exactly.
+Its subtitle language metadata is absent.
+
+### Subtitle verifier regression results
+
+25 policy tests passed.
+
+10 additional end-to-end tests passed, including
+lossless remux acceptance and rejection of:
+
+- Changed dialogue.
+- Shifted timestamps.
+- Changed durations.
+- Missing packets.
+- Changed codec.
+- Invalid stream selection.
+- Missing resource.
+- Corrupt container.
+- Simulated input signature changes.
+
+Combined subtitle regression result: 35/35.
+Reported execution time: 0.848 seconds.
+
+### Controlled initialization experiment
+
+Three synthetic ASS resources were generated:
+source, unchanged control and modified resource.
+
+The modified resource changed only the default
+font size from 20 to 30.
+
+| Property | Control | Modified |
+|---|---|---|
+| Packet count | 3 | 3 |
+| Packet digest | Match | Match |
+| Initialization size | 523 | 523 |
+| Initialization digest | Match | Mismatch |
+| Native preservation | PASS | FAIL |
+
+The experiment passed.
+
+Packet conservation alone cannot establish native
+subtitle preservation. Initialization data can
+change presentation without changing any packet.
+
+Permanent regression integration remains pending.
+
+Rendering equivalence, external dependencies,
+video-relative timeline mapping and general codec
+compatibility remain unverified.
+
+### Accessibility observations
+
+The user reports recurring practical problems with
+legacy caption conversion into ASS, including font
+scaling, explicit positioning, colors and font
+specifications.
+
+Such problems may be discovered only during viewing,
+and subsequent manual correction may be forgotten
+or postponed because of the effort involved.
+
+The user prefers clean SRT because playback software
+can apply consistent viewer-selected font, size and
+border settings across different titles.
+
+The user also reports that conventional case
+conversion tools can introduce enough errors that
+leaving uppercase captions unchanged is preferable
+to manually repairing the conversion.
+
+These are reported practical experiences, not
+controlled comparative usability measurements.
+
+### Architectural implications
+
+Preserving presentation information does not imply
+reproducing that presentation in an accessible export.
+
+A subtitle-only audit and normalization workflow
+could identify presentation problems before viewing,
+without audio processing or recognition models.
+
+Capitalization restoration requires contextual
+linguistic inference and independent evaluation.
+
+The distinction between native preservation,
+semantic interpretation and accessible presentation
+has therefore gained additional practical support.
+
+No case restoration algorithm has yet been tested.
+
+HUZRI administrative note:
+
+CROW's proposal to change the fine print without
+changing the packet digest was successfully detected
+by initialization verification.
+
+IN-TERN's proposal to compare only file sizes
+has been rejected.

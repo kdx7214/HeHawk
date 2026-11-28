@@ -780,3 +780,84 @@ Remaining Phase 5 sequence:
 - 5F: Resource reuse and selective invalidation.
 - 5G: Interruption and recovery integration.
 - 5H: Integrated regression testing.
+
+## 2026-11-27 — Phase 5C interim checkpoint
+
+Native subtitle preservation experiments have passed
+for five codecs across six real-media specimens:
+
+- ASS
+- MOV_TEXT
+- PGS
+- VobSub (SD and HD)
+- SubRip (embedded SRT)
+
+Use Matroska subtitle resources (.mks) for qualified
+ASS, PGS, VobSub and SubRip streams.
+
+Use MP4 for qualified MOV_TEXT streams. The tested
+FFmpeg configuration requires -write_btrt 0 to avoid
+adding initialization data absent from the source.
+
+These are specimen-specific qualification results,
+not universal codec compatibility guarantees.
+
+The shared packet verifier is implemented and committed.
+The dedicated subtitle verifier has passed all six
+specimens and 35 automated regression tests.
+
+A separate controlled ASS initialization experiment
+also passed. Permanent regression integration remains
+pending.
+
+Production subtitle extraction and publication,
+external SRT ingestion, independent qualification
+modules and timeline verification remain incomplete.
+
+### Revised remaining Phase 5C sequence
+
+- 5C.9: Complete verifier regression tests.
+- 5C.10: Transactional native subtitle extraction.
+- 5C.11: External SRT preservation.
+- 5C.12: Independent codec qualification suite.
+- 5C.13: Documentation and completion.
+
+### Subtitle processing modes
+
+Provide three independent processing modes:
+
+1. Presentation normalization of existing subtitles.
+2. Evidence-assisted subtitle repair.
+3. Subtitle generation where captions are absent.
+
+Presentation normalization must not require audio
+extraction, audio decoding, ASR, diarization or
+recognition model loading.
+
+Support future unattended batch presentation auditing
+and preparation of normalized subtitles for review.
+
+### Accessible presentation
+
+Prefer clean SRT as the default accessible text export.
+
+Allow the playback application and viewer to control
+font, size, outline, contrast and placement.
+
+Avoid unnecessary explicit font specifications,
+positioning, colors, indentation and animation.
+
+Preserve meaningful emphasis, speaker distinctions,
+sound descriptions and dialogue completeness.
+
+Intelligent capitalization restoration is a separate,
+optional and reversible normalization operation.
+Do not apply naive case conversion to uppercase
+legacy captions.
+
+Preserve native resources and human decisions.
+Never automatically replace source media or publish
+unreviewed derived captions into the media library.
+
+Detailed case restoration and presentation auditing
+remain deferred research topics.

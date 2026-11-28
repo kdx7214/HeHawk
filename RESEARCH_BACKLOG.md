@@ -204,3 +204,118 @@ images is required.
 MYNAH remains a proposed local language identification
 utility. Selected-interval recognition and optional
 reviewed translation remain deferred.
+
+## 2026-11-27 — Phase 5C interim checkpoint
+
+### GULP — Contextual capitalization restoration
+
+Legacy closed captions frequently contain uppercase
+dialogue. Conventional case conversion may damage
+proper nouns, acronyms and sentence continuity.
+
+Treat capitalization restoration as a linguistic
+inference problem, not a simple formatting operation.
+
+Investigate:
+
+- Sentence continuity across caption boundaries.
+- Abbreviations and punctuation ambiguity.
+- Proper names, places and fictional terminology.
+- Acronyms and mixed-case identifiers.
+- Series-specific terminology dictionaries.
+- Intentional shouting and meaningful emphasis.
+- Speaker labels and sound descriptions.
+- Unicode and foreign-language text protection.
+- Contextual ambiguity and uncertain capitalization.
+- Lightweight local truecasing models.
+- Recognition-assisted capitalization when available.
+
+Do not require ASR for capitalization restoration.
+
+Keep original text, restored text, evidence,
+algorithm version and human decisions separately.
+
+Capitalization restoration must be independently
+reversible and must not silently change wording,
+punctuation, timing or caption membership.
+
+Do not assume uppercase text necessarily indicates
+shouting or that all uppercase spans need conversion.
+
+#### Controlled truecasing experiment
+
+1. Select correctly capitalized reference subtitles.
+2. Preserve the reference unchanged.
+3. Generate an uppercase derived test copy.
+4. Apply candidate restoration algorithms.
+5. Compare restored capitalization with the reference.
+6. Categorize errors and measure correction effort.
+
+Compare dictionary-based, contextual-model and
+recognition-assisted approaches independently.
+
+Measure:
+
+- Overall capitalization accuracy.
+- Proper-name restoration accuracy.
+- Acronym preservation.
+- Sentence-boundary accuracy.
+- Cross-cue continuation accuracy.
+- False capitalization changes.
+- Unintended lexical or punctuation changes.
+- Human review and correction effort.
+- Processing time and resource requirements.
+
+Report accuracy on capitalization-sensitive positions
+as well as overall character accuracy, so unchanged
+characters do not inflate apparent performance.
+
+Use independent evaluation episodes and avoid leaking
+reference capitalization into candidate dictionaries
+or model context.
+
+Synthetic uppercase conversion does not reproduce
+every characteristic of actual legacy captions.
+Validate against genuine uppercase material afterward.
+
+Reference capitalization may itself be imperfect or
+ambiguous. Do not treat every difference as an error
+without considering acceptable alternatives.
+
+A manually authored SubRip specimen from Almost Human
+is a potential local evaluation candidate, subject to
+reference quality and suitability.
+
+### GULP / SWAN — Presentation auditing
+
+Investigate lightweight subtitle-only inspection of:
+
+- Explicit positioning and alignment.
+- Inline color changes and multiple text colors.
+- Font specifications and inconsistent font sizes.
+- Non-breaking-space indentation.
+- Uppercase dialogue prevalence.
+- Karaoke, scrolling and animation.
+- Off-screen or potentially clipped captions.
+- Temporal overlap, including nonadjacent overlaps.
+- Spatial collisions and simultaneous dialogue.
+- Legacy caption line and sentence fragmentation.
+
+Distinguish defined but unused styles from styles
+actually applied to subtitle events.
+
+Distinguish potential presentation problems from
+confirmed playback problems. Actual rendering depends
+on the playback engine, configuration and display.
+
+Produce per-track findings and actionable review
+summaries without requiring full-episode viewing.
+
+Evaluate normalization against readability, dialogue
+preservation, speaker clarity and human review effort.
+
+Do not remove meaningful text merely because its
+presentation is inconvenient.
+
+Presentation auditing and truecasing are deferred
+behind the current native preservation work.
