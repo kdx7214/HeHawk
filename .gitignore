@@ -23,3 +23,9 @@
 # Local source backups
 /*_original.py
 /*_backup.py
+
+# Real-media codec qualification
+!/qualification/
+/qualification/*
+!/qualification/*.py
+!/qualification/*.md
