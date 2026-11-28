@@ -48,12 +48,24 @@ def project_lock(root):
         os.close(fd)
 
 
-def publish(root, relative, resource_id, producer, verifier, preflight):
+def manifest_entry(record):
+    entry = {'path': record['target'], 'size': record['size'],
+             'sha256': record['sha256'], 'timeline_mapping': 'unverified'}
+    if 'provenance' in record:
+        entry['provenance'] = record['provenance']
+    return entry
+
+
+def publish(root, relative, resource_id, producer, verifier, preflight, *, provenance=None):
     """Publish one resource. Caller supplies trusted workspace preflight and callbacks.
 
     Producer writes only the supplied temporary path; verifier raises on failure.
     Any interrupted transaction blocks subsequent writes pending reconciliation.
     """
+    if provenance is not None:
+        if not isinstance(provenance, dict):
+            raise ValueError('Provenance must be an object')
+        provenance = json.loads(json.dumps(provenance, allow_nan=False))
     root = Path(root)
     relative = Path(relative)
     if not root.is_absolute() or root.resolve() != root or not root.is_dir():
@@ -83,6 +95,8 @@ def publish(root, relative, resource_id, producer, verifier, preflight):
         import uuid
         temporary = target.parent / ('.pending-' + uuid.uuid4().hex + target.suffix)
         record = {'resource_id': resource_id, 'target': relative.as_posix(), 'temporary': temporary.relative_to(root).as_posix(), 'state': 'pending'}
+        if provenance is not None:
+            record['provenance'] = provenance
         atomic_json(journal, record)
         preflight()
         producer(temporary)
@@ -96,7 +110,7 @@ def publish(root, relative, resource_id, producer, verifier, preflight):
         preflight()
         os.link(temporary, target)
         sync_dir(target.parent)
-        state['resources'][resource_id] = {'path': relative.as_posix(), 'size': record['size'], 'sha256': record['sha256'], 'timeline_mapping': 'unverified'}
+        state['resources'][resource_id] = manifest_entry(record)
         atomic_json(manifest, state, replace=True)
         temporary.unlink()
         sync_dir(target.parent)

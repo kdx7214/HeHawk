@@ -3,7 +3,7 @@ import json
 import os
 import re
 from pathlib import Path
-from hehawk_publication import atomic_json, digest, project_lock, sync_dir
+from hehawk_publication import atomic_json, digest, project_lock, sync_dir, manifest_entry
 
 
 def reconcile(root, preflight):
@@ -34,7 +34,7 @@ def reconcile(root, preflight):
             return 'incomplete_preserved'
         if record['state'] != 'verified':
             raise ValueError('Unknown transaction state')
-        entry = {'path': record['target'], 'size': record['size'], 'sha256': record['sha256'], 'timeline_mapping': 'unverified'}
+        entry = manifest_entry(record)
         state = json.loads(manifest.read_text()) if manifest.exists() else {'schema_version': 1, 'resources': {}}
         if state['schema_version'] != 1:
             raise ValueError('Unsupported manifest')
