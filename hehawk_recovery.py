@@ -45,6 +45,10 @@ def reconcile(root, preflight):
         for p in (target, temporary):
             if p.exists() and (not p.is_file() or p.stat().st_size != entry['size'] or digest(p) != entry['sha256']):
                 raise ValueError('Resource integrity failure')
+        if record.get('verification_required'):
+            for p in (target, temporary):
+                if p.exists() and (p.stat().st_mode & 0o777) != 0o600:
+                    raise ValueError('Unsafe resource permissions')
         if target.exists() and temporary.exists() and not target.samefile(temporary):
             raise ValueError('Unexplained destination')
         if target.exists() and not temporary.exists() and existing is None:

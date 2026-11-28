@@ -53,10 +53,20 @@ def manifest_entry(record):
              'sha256': record['sha256'], 'timeline_mapping': 'unverified'}
     if 'provenance' in record:
         entry['provenance'] = record['provenance']
+    if 'verification' in record:
+        entry['verification'] = validate_verification(record['verification'])
+    elif record.get('verification_required'):
+        raise ValueError('Missing required verification evidence')
     return entry
 
 
-def publish(root, relative, resource_id, producer, verifier, preflight, *, provenance=None):
+def validate_verification(report):
+    if not isinstance(report, dict) or report.get('passed') is not True:
+        raise ValueError('Verification report must explicitly pass')
+    return json.loads(json.dumps(report, allow_nan=False))
+
+
+def publish(root, relative, resource_id, producer, verifier, preflight, *, provenance=None, require_verification=False):
     """Publish one resource. Caller supplies trusted workspace preflight and callbacks.
 
     Producer writes only the supplied temporary path; verifier raises on failure.
@@ -97,12 +107,17 @@ def publish(root, relative, resource_id, producer, verifier, preflight, *, prove
         record = {'resource_id': resource_id, 'target': relative.as_posix(), 'temporary': temporary.relative_to(root).as_posix(), 'state': 'pending'}
         if provenance is not None:
             record['provenance'] = provenance
+        if require_verification:
+            record['verification_required'] = True
         atomic_json(journal, record)
         preflight()
         producer(temporary)
         if temporary.is_symlink() or not temporary.is_file() or temporary.stat().st_size == 0:
             raise ValueError('Invalid temporary resource')
-        verifier(temporary)
+        os.chmod(temporary, 0o600)
+        report = verifier(temporary)
+        if report is not None or require_verification:
+            record['verification'] = validate_verification(report)
         with temporary.open('rb') as stream:
             os.fsync(stream.fileno())
         record.update(state='verified', size=temporary.stat().st_size, sha256=digest(temporary))
