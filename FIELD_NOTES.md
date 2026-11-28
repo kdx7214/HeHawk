@@ -313,3 +313,46 @@ HUZRI administrative notes:
 - SCOOP joins the Department of Avian Waste Management.
 - Never mistake a research specimen for a turd.
 - Elegance without loss of meaning.
+
+## 2026-11-27 — Phase 5B completion
+
+### Native audio qualification
+
+FFmpeg 6.1.1-3ubuntu5.
+
+| Codec | Specimen | Packets | Native | Clean decode |
+|---|---|---:|---|---|
+| AAC | Angel | 117527 | PASS | PASS |
+| AC3 | Supernatural | 87045 | PASS | PASS |
+| EAC3 | The Adam Project | 199909 | PASS | PASS |
+| MP3 | Let The Right One In | 274676 | PASS | PASS |
+| TrueHD | Doctor Strange | 9109450 | PASS | No |
+
+All five specimens produced matching source and
+resource packet hashes and decoded PCM hashes.
+
+TrueHD reported identical decoder diagnostic types
+on source and resource:
+quant_step_size larger than huff_lsbs
+
+Both decoders exited successfully, but clean decoded
+equivalence was not established. The production
+TrueHD resource was published using packet-only
+verification. No decoder failure was concealed.
+
+Independent opt-in qualification modules retain
+historical packet and PCM baselines. All five passed.
+Workspace mount and temporary-directory rejection
+tests passed.
+
+These results qualify specimens, not all possible
+encodings. Physical disconnection during processing,
+actual power-loss recovery, complete source identity
+and video-relative timeline mapping remain unverified.
+
+### Architectural observation
+
+Temporal subtitle overlap is not inherently erroneous.
+The user recalls simultaneous VobSub captions placed
+in separate screen regions. Preserve these events
+independently rather than normalizing them at ingestion.

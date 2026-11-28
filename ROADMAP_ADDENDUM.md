@@ -20,3 +20,51 @@ Read alongside ROADMAP.md. These are planned capabilities unless explicitly mark
 - GULP faithful ingestion; independent recognition; MAGPIE reconciliation informed by CHIRP; SWAN final presentation and audit; STORK optional publishing. ZOOKEEPER dependency graph and resumability; SCOOP reference-aware cleanup with authorization, never curated evidence.
 - Capture environment versions, pin model revisions, document installation and clean-install validation. CPU default eight threads provisional; optional GPU only after compatibility and quality testing.
 - Preserve original README, handoff, roadmap and bibliography. Current checkpoint supersedes historical resume instructions. No new literature claims in this addendum; existing REFERENCES.md remains unchanged.
+
+## 2026-11-27 — Phase 5B completion
+
+### Resource dependency hierarchy
+
+1. Immutable original media.
+2. Verified native extracted resources.
+3. Derived working resources.
+4. Recognition evidence and human review decisions.
+5. Approved deliverables.
+
+Derived resources should record upstream identities,
+hashes, algorithm versions and processing parameters.
+Invalidate only affected dependencies.
+Preserve human corrections and independent evidence.
+
+SCOOP must distinguish regenerable intermediates
+from irreplaceable resources and human decisions.
+
+### Subtitle representation
+
+Preserve native timing, formatting and positioning.
+Independent simultaneous events remain independent.
+
+OWL recognizes bitmap content without assuming
+screen placement. NUTCRACKER retains spatial and
+temporal evidence. GULP normalizes working text.
+SWAN resolves presentation conflicts when required
+by the destination format or playback environment.
+
+Native preservation and readable export are separate
+operations. Never discard spatial evidence merely
+because SRT cannot faithfully represent it.
+
+### Deliverable staging
+
+Future configurable staging directory, separate from
+projects and the original media library.
+
+Mirror the source library's relative directory
+hierarchy. Stage only explicitly approved, verified
+deliverables. Preserve export provenance.
+
+Never automatically write to the original media
+library, even when it is writable. Final transfer
+remains a manual user operation.
+
+SCOOP must not automatically remove staged deliverables.

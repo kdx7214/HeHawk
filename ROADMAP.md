@@ -753,3 +753,30 @@ Future manual interval operations should share player selection, original-media
 time mapping and review persistence: language identification, language-specific
 recognition and eventually human-reviewed translation. These are not Phase 5
 requirements. No automatic translation or multilingual model loading now.
+
+## 15. 2026-11-27 — Phase 5B completion
+
+Phase 5A: resource planning, workspace validation,
+transactional publication and recovery implemented.
+
+Phase 5B: native audio extraction implemented.
+AAC, AC3, EAC3, MP3 and TrueHD specimens passed
+native preservation and reusable qualification tests.
+
+Verification schema 3 distinguishes native preservation,
+decoded equivalence and decoder integrity.
+Timeline mapping remains unverified.
+
+Phase 5C next: native subtitle preservation.
+Preserve all embedded subtitle streams, including
+unsupported, foreign-language and bitmap streams.
+Choose resource containers by verified compatibility.
+Never silently transcode native resources.
+
+Remaining Phase 5 sequence:
+- 5C: Native subtitle preservation.
+- 5D: Derived recognition PCM.
+- 5E: Timeline verification.
+- 5F: Resource reuse and selective invalidation.
+- 5G: Interruption and recovery integration.
+- 5H: Integrated regression testing.

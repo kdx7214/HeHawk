@@ -168,3 +168,39 @@ English voice embeddings. Same-language audio and subtitles may represent
 different performances or translations. Preserve duplicate cast provenance.
 
 All these investigations remain deferred behind the single-episode CLI workflow.
+
+## 2026-11-27 — Phase 5B completion
+
+### Revised OWL priorities
+
+This supersedes earlier burned-in OCR priorities.
+
+1. VobSub OCR: highest priority because low-resolution
+   DVD graphics scale poorly on modern 4K displays.
+2. PGS OCR: subsequent priority for editable text
+   and consistent accessible presentation.
+3. Burned-in subtitle OCR: shelved indefinitely.
+   The user reports only one relevant black-region
+   burned-in specimen in over thirty years.
+
+Preserve native bitmap resources before recognition.
+Investigate preprocessing variants and independent
+OCR observations. Agreement is not proof of accuracy.
+
+Retain original canvas dimensions, bitmap bounds,
+placement, palette, transparency, display intervals,
+forced-event information and source references
+where available.
+
+Do not assume captions appear at the bottom.
+Preserve simultaneous spatially separated events.
+Distinguish temporal overlap from visual collision.
+Do not infer speaker identity from position alone.
+
+OCR is deferred beyond native subtitle preservation.
+No permanent collection of regenerable preprocessing
+images is required.
+
+MYNAH remains a proposed local language identification
+utility. Selected-interval recognition and optional
+reviewed translation remain deferred.
