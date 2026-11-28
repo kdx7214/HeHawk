@@ -123,3 +123,48 @@ capability. Keep current single-episode workflow development the priority.
 Immediate priority is now the single-filename CLI integration prototype ending in
 CANARY diagnostic output, before resuming GUI redesign. These investigations must
 not block that prototype. No new research or production capability is claimed.
+
+
+## Additional research checkpoint — 2026-11-27 (Phase 4c)
+
+### MYNAH — Multilingual Yields from Native Audio Heuristics (proposed)
+
+Initially an optional standalone local language-identification utility, not a
+mandatory pipeline stage. Explicit model download and invocation; disabled by
+default in any later integration. Evaluate speech-rich intervals, disagreement,
+short samples, noise, fictional speech and mixed languages. Preserve metadata,
+model observations and human confirmation separately. No automatic authorization
+of English ASR or translation from uncertain identification.
+
+User-directed interval workflow: select start/end in the player or specify an
+interval in a local utility; identify language only within that sample; confirm
+or override; eventually invoke a suitable language-specific speech recognizer
+on that interval alone. Allow unknown or mixed language outcomes and retry with
+adjusted context. Map results back to original media timestamps, preserving
+source track, interval, model/version and uncertainty. Review transcription and
+later optional English translation in NUTCRACKER before adding missing captions.
+No automatic replacement or invention of dialogue. Preserve intentionally
+untranslated speech. Machine translation remains explicitly deferred.
+
+Regression candidates: Let The Right One In (European).avi, untagged audio
+(reported Swedish); Assassin's Creed (2016).mkv, English-tagged audio with
+reported missing foreign-dialogue translations. Absence of a forced track flag
+is not proof of missing translations; individual bitmap events may be forced.
+
+### OWL — Optical Word Locator (proposed)
+
+Investigate local OCR of burned-in captions, cropped regions, persistent text
+changes and reconstruction of cue timing without dumping all video frames.
+Evaluate short captions and sampling misses. Let The Right One In (European)
+is a candidate. No OCR implementation now.
+
+### Native captions and dubbed performances
+
+Investigate CEA-608/708 embedded video captions, stream discovery, roll-up/pop-on,
+positioning and incremental text. FFprobe closed_captions is not definitive.
+Distinguish character, actor, dubbed performance and acoustic profile. Inuyasha
+has English and Japanese audio; Japanese NFO actor metadata must not label
+English voice embeddings. Same-language audio and subtitles may represent
+different performances or translations. Preserve duplicate cast provenance.
+
+All these investigations remain deferred behind the single-episode CLI workflow.

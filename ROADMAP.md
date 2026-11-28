@@ -730,3 +730,26 @@ backups and selective regeneration; protect irreplaceable human work. Accessible
 no essential information conveyed only by audio or color; keyboard and adjustable
 text/contrast/playback. Resource-aware scheduling and disaster recovery remain design
 requirements, not immediate implementation scope.
+
+
+## 14. Discovery checkpoint and Phase 5 — 2026-11-27
+
+Phases 1–4c: discovery, optional NFO parsing, workspace initialization and
+preliminary track selection implemented. Ten real-media regression tests passed.
+See DARS_PROJECT_HANDOFF.md for inventory and resume instructions.
+
+Phase 5 next: define resource identity, provenance, source verification, native
+compressed audio and subtitle preservation, timestamp mapping, derived PCM,
+peak storage accounting, incomplete output handling, verification and reuse.
+Prefer selective extraction from the mounted library; no full-video copy by
+default. Preserve all subtitle streams, including unsupported bitmap formats.
+Do not assume container flags establish dialogue language or caption purpose.
+Do not authorize English ASR solely from an untagged audio selection.
+Validate mount and storage before processing; route temporary files and model
+caches to configured local storage, not the boot drive. Test actual decoder and
+third-party behavior. Extraction, cache routing and recovery are not yet complete.
+
+Future manual interval operations should share player selection, original-media
+time mapping and review persistence: language identification, language-specific
+recognition and eventually human-reviewed translation. These are not Phase 5
+requirements. No automatic translation or multilingual model loading now.

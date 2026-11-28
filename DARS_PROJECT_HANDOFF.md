@@ -1244,3 +1244,41 @@ Warn, don't correct; inform, don't obstruct. See ROADMAP for details.
 Resume with media inspection only: no recognition models, GUI or source writes.
 Use explicit interpreter and exact filenames in commands. Keep media, dialogue,
 local configuration, embeddings, reports and databases out of Git.
+
+
+## Development checkpoint — 2026-11-27 (Phase 4c complete)
+
+Supersedes earlier resume instructions, not historical results.
+hehawk.py, hehawk_tracks.py, hehawk_nfo.py and hehawk_workspace.py implement
+read-only discovery, optional NFO parsing, workspace initialization and track
+recommendations. Workspace repeat initialization verified. Phase 4c code and
+regression tests pushed by user; ten real-media regression cases passed.
+Synthetic suite: test_hehawk_tracks.py; real-media suite: test_hehawk_media.py.
+Run with ./.venv/bin/python from the repository root.
+
+Discovery regression inventory: Angel (ASS), The Adam Project (mov_text),
+The Tomorrow People (no subtitles), Misfits of Science (25 fps), Let The Right
+One In (European) (untagged audio, burned-in subtitles reported), Supernatural
+(negative timestamps, forced PGS), Coco (4K HDR, VobSub), Doctor Strange in the
+Multiverse of Madness (12-bit HDR, TrueHD Atmos, forced PGS), Inuyasha (English
+and Japanese audio, VobSub), Assassin's Creed (2016) (English-tagged audio,
+VobSub, missing foreign-dialogue translations reported by user).
+Discovery cannot verify spoken language, subtitle completeness or forced-event
+content. Extraction and actual decoding remain untested.
+
+Track selection distinguishes availability, capability, selection and preliminary
+English recognition authorization. Preserve every subtitle stream and original
+metadata. Unknown audio can be provisionally selected without authorizing English
+ASR. Audio/subtitle relationship remains unverified; recognition_ready remains
+false. User overrides and persistent confirmation remain future work.
+
+Local configuration: media_root /mnt/disk3; workspace_root /mnt/d/hehawk;
+required_workspace_mount /mnt/d; minimum_free_gib 20. Configuration remains local.
+Proposed app-specific cache, model and temp directories under workspace root;
+third-party cache routing and migration not yet implemented.
+
+Resume: Phase 5 resource extraction contracts, then incremental implementation.
+Preserve native resources, original timeline relationships, verified reuse and
+safe recovery. No source writes or silent storage fallback. GUI remains paused.
+MYNAH, OWL and multilingual recognition/translation remain deferred. See backlog
+for user-selected interval recognition. Keep media and private evidence local.
