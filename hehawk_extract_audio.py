@@ -14,6 +14,8 @@ from hehawk_verify_audio import verify as verify_audio
 from xml.etree.ElementTree import ParseError
 
 
+SUPPORTED_NATIVE_CODECS = frozenset({"aac", "ac3", "eac3", "mp3", "truehd"})
+
 def extract(video, config, index, decode=False):
     media, root, mount = preflight(config)
     if not media.is_mount():
@@ -32,8 +34,8 @@ def extract(video, config, index, decode=False):
     if resource is None:
         raise ValueError('Requested stream is not the selected native audio')
     stream = next(s for s in inventory['streams'] if s['index'] == index)
-    if stream['codec_name'] != 'aac':
-        raise ValueError('Phase 5B.1 supports AAC only')
+    if stream['codec_name'] not in SUPPORTED_NATIVE_CODECS:
+        raise ValueError(f"Unsupported native audio codec: {stream['codec_name']}")
     project_rel = Path('projects') / relative.with_suffix('')
     resources = safe_path(root, project_rel / 'resources', mount)
     destination = Path(resource['path']).relative_to('resources')
@@ -78,7 +80,7 @@ def main():
     parser.add_argument('video', type=Path)
     parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--stream', type=int, required=True)
-    parser.add_argument('--decode', action='store_true', help='Also compare decoded PCM hashes')
+    parser.add_argument('--decode', action='store_true', help='Require matching decoded PCM hashes without decoder diagnostics')
     args = parser.parse_args()
     try:
         print(json.dumps(extract(args.video, json.loads(args.config.read_text()), args.stream, decode=args.decode), indent=2))

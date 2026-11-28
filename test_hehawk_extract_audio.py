@@ -27,6 +27,22 @@ class ExtractionTests(unittest.TestCase):
         # Real safe_path checks require an actual mount; isolate this boundary.
         for target in ('hehawk_extract_audio.safe_path','hehawk_resources.safe_path'):
             p=patch(target,side_effect=lambda root,rel,mount: root/rel); p.start(); self.addCleanup(p.stop)
+    def test_codec_allowlist(self):
+        self.assertEqual(e.SUPPORTED_NATIVE_CODECS, {'aac','ac3','eac3','mp3','truehd'})
+    def test_unsupported_codec(self):
+        inventory = e.inspect(self.source)
+        inventory['streams'][0]['codec_name'] = 'flac'
+        with patch.object(e, 'inspect', return_value=inventory):
+            with self.assertRaisesRegex(ValueError, 'Unsupported native audio codec'):
+                e.extract(self.source,self.config,0)
+        self.assertFalse((self.resources/'manifest.json').exists())
+    def test_decoder_diagnostics_reject_clean_request(self):
+        with patch.object(e,'verify_audio',return_value={
+            'passed':False,'native_preservation_passed':True,
+            'decoded_match':True,'clean_decoded_equivalence':False}):
+            with self.assertRaises(ValueError):
+                e.extract(self.source,self.config,0,decode=True)
+        self.assertFalse((self.resources/'manifest.json').exists())
     def test_success(self):
         r=e.extract(self.source,self.config,0,decode=True)
         self.assertTrue(r['verification']['decoded_match'])
