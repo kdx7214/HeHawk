@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -75,11 +76,14 @@ def packet_record(elem, time_base):
 def pcm_digest(path,index):
     result = subprocess.run(['ffmpeg','-nostdin','-hide_banner','-loglevel','error','-xerror',
         '-i',str(path),'-map',f'0:{index}','-c:a','pcm_f32le','-f','hash','-hash','sha256','-'],
-        check=True,capture_output=True,text=True)
+        check=False,capture_output=True,text=True)
     value = result.stdout.strip()
-    if not value.startswith('SHA256=') or len(value)!=71 or result.stderr.strip():
-        raise ValueError('Invalid decoded hash result')
-    return value[7:]
+    valid = result.returncode == 0 and re.fullmatch(r'SHA256=[0-9a-fA-F]{64}', value) is not None
+    return {'execution':'completed' if result.returncode == 0 else 'failed',
+        'exit_status':result.returncode,
+        'integrity':'reported' if result.stderr.strip() else 'no_diagnostics',
+        'diagnostics':result.stderr.strip(),
+        'sha256':value[7:].lower() if valid else None}
 
 
 def verify(source, resource, source_index, resource_index=0, decode=False):
@@ -94,14 +98,21 @@ def verify(source, resource, source_index, resource_index=0, decode=False):
         raise ValueError('Missing codec initialization hash')
     pa=packet_digest(source,source_index,Fraction(a['time_base']))
     pb=packet_digest(resource,resource_index,Fraction(b['time_base']))
-    da,db=(pcm_digest(source,source_index),pcm_digest(resource,resource_index)) if decode else (None,None)
+    ca,cb=(pcm_digest(source,source_index),pcm_digest(resource,resource_index)) if decode else (None,None)
+    da,db=(ca['sha256'],cb['sha256']) if decode else (None,None)
+    equivalent = da == db if da is not None and db is not None else None
+    native = not differences and pa == pb
+    clean = equivalent is True and all(c['integrity']=='no_diagnostics' for c in (ca,cb))
+
     if before != [signature(p) for p in (source,resource)]:
         raise ValueError('Input changed during verification')
-    return {'schema_version':2,'packet_side_data':'ffprobe_exposed_fields','source_stream':source_index,'resource_stream':resource_index,
+    return {'schema_version':3,'packet_side_data':'ffprobe_exposed_fields','source_stream':source_index,'resource_stream':resource_index,
         'metadata_differences':differences,'source_packets':pa,'resource_packets':pb,
         'packet_match':pa==pb,'source_pcm_sha256':da,'resource_pcm_sha256':db,
-        'decoded_match':da==db if decode else None,'timeline_mapping':'unverified',
-        'passed':not differences and pa==pb and (not decode or da==db)}
+        'decoded_match':equivalent,'timeline_mapping':'unverified',
+        'native_preservation_passed':native,'source_decoder':ca,'resource_decoder':cb,
+        'clean_decoded_equivalence':clean if decode else None,
+        'passed':native and (not decode or clean)}
 
 
 def main():

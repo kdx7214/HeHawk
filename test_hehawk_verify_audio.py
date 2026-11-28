@@ -70,6 +70,29 @@ class AudioVerificationTests(unittest.TestCase):
             return original(args,*a,**kw)
         with patch.object(v.subprocess,'run',side_effect=run):
             with self.assertRaises(subprocess.CalledProcessError): v.verify(self.source,self.copy,0,decode=True)
+    def test_decoder_diagnostics(self):
+        result=subprocess.CompletedProcess([],0,'SHA256='+'a'*64+'\n','decoder diagnostic\n')
+        original=v.subprocess.run
+        def run(args,*a,**kw):
+            return result if args[0]=='ffmpeg' else original(args,*a,**kw)
+        with patch.object(v.subprocess,'run',side_effect=run):
+            r=v.verify(self.source,self.copy,0,decode=True)
+        self.assertTrue(r['native_preservation_passed'])
+        self.assertTrue(r['decoded_match'])
+        self.assertFalse(r['clean_decoded_equivalence'])
+        self.assertFalse(r['passed'])
+        self.assertEqual(r['source_decoder']['diagnostics'],'decoder diagnostic')
+
+    def test_invalid_hash(self):
+        with patch.object(v.subprocess,'run',return_value=subprocess.CompletedProcess([],0,'SHA256='+'z'*64,'')):
+            self.assertIsNone(v.pcm_digest(self.source,0)['sha256'])
+
+    def test_nonzero_exit(self):
+        with patch.object(v.subprocess,'run',return_value=subprocess.CompletedProcess([],1,'SHA256='+'a'*64,'failure')):
+            r=v.pcm_digest(self.source,0)
+        self.assertEqual(r['execution'],'failed')
+        self.assertIsNone(r['sha256'])
+
     def test_no_decode(self):
         r=v.verify(self.source,self.copy,0)
         self.assertTrue(r['passed']); self.assertIsNone(r['decoded_match'])
